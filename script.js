@@ -1,3 +1,31 @@
+// Hamburger Menu Toggle
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.querySelector('.nav-links');
+
+if (hamburger && navLinks) {
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hamburger.classList.toggle('open');
+        navLinks.classList.toggle('open');
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('open');
+        }
+    });
+
+    // Close nav when a link is clicked
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('open');
+            navLinks.classList.remove('open');
+        });
+    });
+}
+
 // Reveal animations on scroll
 const revealElements = document.querySelectorAll('.reveal');
 
@@ -71,11 +99,12 @@ if (form) {
     });
 }
 
-// Toggle Other Donation Input
+// Toggle Other Donation Input + Payment Section
 function toggleOtherInput() {
     const select = document.getElementById('donation-type');
     const otherGroup = document.getElementById('other-donation-group');
     const otherInput = document.getElementById('other-donation-type');
+    const paymentSection = document.getElementById('payment-section');
 
     if (select.value === 'Other') {
         otherGroup.style.display = 'block';
@@ -85,6 +114,44 @@ function toggleOtherInput() {
         otherInput.required = false;
         otherInput.value = '';
     }
+
+    // Show payment section only when Money is selected
+    if (paymentSection) {
+        paymentSection.style.display = select.value === 'Money' ? 'block' : 'none';
+        if (select.value !== 'Money') {
+            // Reset payment selection when switching away
+            document.querySelectorAll('input[name="payment-method"]').forEach(r => r.checked = false);
+            document.querySelectorAll('.pay-subfields').forEach(el => el.style.display = 'none');
+        }
+    }
+}
+
+// Payment method sub-field switcher
+document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        document.querySelectorAll('.pay-subfields').forEach(el => el.style.display = 'none');
+        const target = document.getElementById('pay-' + radio.value);
+        if (target) target.style.display = 'block';
+    });
+});
+
+// Card number auto-format (add space every 4 digits)
+const cardNumberInput = document.getElementById('card-number');
+if (cardNumberInput) {
+    cardNumberInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+        e.target.value = val.match(/.{1,4}/g)?.join(' ') || val;
+    });
+}
+
+// Card expiry auto-format (MM / YY)
+const cardExpiryInput = document.getElementById('card-expiry');
+if (cardExpiryInput) {
+    cardExpiryInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 3) val = val.substring(0, 2) + ' / ' + val.substring(2);
+        e.target.value = val;
+    });
 }
 
 // Main Donation Form Handling
@@ -231,9 +298,24 @@ if (loginForm) {
         const password = document.getElementById('login-password').value;
 
         if (email && password) {
+            // Detect role from filename
+            const filename = window.location.pathname.split('/').pop().toLowerCase();
+            let role = 'Donator';
+            if (filename.includes('receiver')) role = 'Receiver';
+            else if (filename.includes('worker')) role = 'Worker';
+            else if (filename.includes('admin')) role = 'Admin';
+
+            // Derive a display name from the email prefix
+            const prefix = email.split('@')[0];
+            const displayName = prefix
+                .replace(/[._-]+/g, ' ')
+                .replace(/\b\w/g, c => c.toUpperCase());
+
             sessionStorage.setItem('isLoggedIn', 'true');
             sessionStorage.setItem('userEmail', email);
-            alert(`Login successful! Redirecting to your Donation Dashboard...`);
+            sessionStorage.setItem('userName', displayName);
+            sessionStorage.setItem('userRole', role);
+            alert(`Login successful! Welcome, ${displayName} (${role})! Redirecting to your Dashboard...`);
             window.location.href = 'home.html';
         }
     });
@@ -246,6 +328,8 @@ if (logoutBtn) {
         e.preventDefault();
         sessionStorage.removeItem('isLoggedIn');
         sessionStorage.removeItem('userEmail');
+        sessionStorage.removeItem('userName');
+        sessionStorage.removeItem('userRole');
         alert('You have been logged out.');
         window.location.href = 'index.html';
     });
@@ -261,9 +345,16 @@ if (signupForm) {
         const password = document.getElementById('signup-password').value;
 
         if (name && email && password) {
+            // Detect role from filename to redirect correctly
+            const filename = window.location.pathname.split('/').pop().toLowerCase();
+            let loginUrl = 'login-donator.html';
+            if (filename.includes('receiver')) loginUrl = 'login-receiver.html';
+            else if (filename.includes('worker')) loginUrl = 'login-worker.html';
+            else if (filename.includes('admin')) loginUrl = 'login-admin.html';
+
             sessionStorage.setItem('userName', name);
             alert(`Account created successfully for ${name}! Please sign in.`);
-            window.location.href = 'login.html';
+            window.location.href = loginUrl;
         }
     });
 }
@@ -273,10 +364,20 @@ if (window.location.pathname.includes('home.html')) {
     const isLoggedIn = sessionStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
         alert('Please login to access the donation hub.');
-        window.location.href = 'login.html';
+        window.location.href = 'login-donator.html';
     }
 
     const userName = sessionStorage.getItem('userName') || 'Supporter';
     const nameDisplay = document.getElementById('user-name-display');
     if (nameDisplay) nameDisplay.innerText = userName;
+
+    // Set avatar initials from the user's name
+    const avatarEl = document.getElementById('user-avatar-initials');
+    if (avatarEl) {
+        const parts = userName.trim().split(/\s+/);
+        const initials = parts.length >= 2
+            ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+            : userName.substring(0, 2).toUpperCase();
+        avatarEl.innerText = initials;
+    }
 }

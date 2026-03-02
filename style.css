@@ -13,6 +13,28 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Role Themes */
+.theme-receiver {
+    --primary: #6366f1;
+    /* Indigo 500 */
+    --primary-dark: #4338ca;
+    /* Indigo 700 */
+}
+
+.theme-worker {
+    --primary: #f59e0b;
+    /* Amber 500 */
+    --primary-dark: #d97706;
+    /* Amber 700 */
+}
+
+.theme-admin {
+    --primary: #475569;
+    /* Slate 600 */
+    --primary-dark: #334155;
+    /* Slate 700 */
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -961,5 +983,436 @@ h3,
     .footer-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
+    }
+}
+
+/* =============================================
+   HAMBURGER MENU
+   ============================================= */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+    z-index: 1100;
+}
+
+.hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--text-dark);
+    border-radius: 3px;
+    transition: var(--transition);
+}
+
+.hamburger.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* =============================================
+   TABLET  (≤ 768px)
+   ============================================= */
+@media (max-width: 768px) {
+
+    /* --- Nav --- */
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: var(--white);
+        padding: 1.5rem 2rem 2rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        gap: 1.2rem;
+        z-index: 999;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-links a,
+    .nav-links .btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        display: none;
+        margin-top: 0.5rem;
+    }
+
+    .dropdown:hover .dropdown-content,
+    .dropdown.open .dropdown-content {
+        display: block;
+    }
+
+    /* --- Hero --- */
+    .hero {
+        padding: 120px 0 60px;
+        text-align: center;
+    }
+
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2.4rem;
+    }
+
+    .hero-content p {
+        max-width: 100%;
+        font-size: 1rem;
+    }
+
+    .hero-btns {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-badge {
+        bottom: -15px;
+        left: 10px;
+        font-size: 0.85rem;
+        padding: 0.75rem 1rem;
+    }
+
+    /* --- Categories --- */
+    .categories-section {
+        padding: 60px 0;
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.2rem;
+    }
+
+    .category-card {
+        padding: 2rem 1.2rem;
+    }
+
+    .category-icon {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .category-card h3 {
+        font-size: 1.2rem;
+    }
+
+    /* --- Tracking / Dashboard Cards --- */
+    .tracking-section {
+        padding: 60px 0;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-title h2 {
+        font-size: 2rem;
+    }
+
+    /* --- Impact --- */
+    .impact-section {
+        padding: 60px 0;
+    }
+
+    .impact-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .impact-item span {
+        font-size: 2.5rem;
+    }
+
+    /* --- Footer --- */
+    .footer {
+        padding: 50px 0 30px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .newsletter-form {
+        flex-direction: row;
+    }
+
+    /* --- Dashboard (home.html) --- */
+    .dashboard-hero {
+        padding: 100px 0 30px;
+        text-align: center;
+    }
+
+    .dashboard-welcome h1 {
+        font-size: 1.8rem;
+    }
+
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    #community-feed .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* --- Modal / Form --- */
+    .modal-content {
+        margin: 10% auto;
+        padding: 2rem 1.5rem;
+        width: 95%;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+
+    .form-wrapper {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* =============================================
+   MOBILE  (≤ 480px)
+   ============================================= */
+@media (max-width: 480px) {
+
+    /* --- Nav --- */
+    .logo {
+        font-size: 1.3rem;
+    }
+
+    /* --- Hero --- */
+    .hero-content h1 {
+        font-size: 1.9rem;
+    }
+
+    .hero-content p {
+        font-size: 0.95rem;
+    }
+
+    .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.95rem;
+    }
+
+    /* --- Categories --- */
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-card {
+        padding: 1.8rem 1rem;
+    }
+
+    /* --- Impact --- */
+    .impact-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .impact-item span {
+        font-size: 2rem;
+    }
+
+    /* --- Section titles --- */
+    .section-title h2 {
+        font-size: 1.6rem;
+    }
+
+    .section-title p {
+        font-size: 0.9rem;
+    }
+
+    /* --- Dashboard Welcome --- */
+    .dashboard-welcome h1 {
+        font-size: 1.5rem;
+    }
+
+    /* --- Modal --- */
+    .modal-content {
+        margin: 5% auto;
+        padding: 1.5rem 1rem;
+    }
+
+    /* --- Footer --- */
+    .footer {
+        padding: 40px 0 25px;
+    }
+
+    .newsletter-form {
+        flex-direction: column;
+    }
+
+    .newsletter-form input,
+    .newsletter-form button {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    /* --- Login / Signup --- */
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .social-login {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =============================================
+   PAYMENT SECTION STYLES
+   ============================================= */
+.payment-methods {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+}
+
+.payment-option {
+    flex: 1;
+    min-width: 100px;
+    cursor: pointer;
+}
+
+.payment-option input[type="radio"] {
+    display: none;
+}
+
+.payment-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 1rem 0.8rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: var(--bg-light);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    transition: var(--transition);
+    text-align: center;
+}
+
+.payment-option input[type="radio"]:checked+.payment-card {
+    border-color: var(--primary);
+    background: rgba(16, 185, 129, 0.07);
+    color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.payment-card:hover {
+    border-color: var(--primary);
+}
+
+.payment-icon {
+    font-size: 1.6rem;
+}
+
+/* Sub-fields shared */
+.pay-subfields input,
+.pay-subfields select {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--white);
+}
+
+.pay-subfields input:focus,
+.pay-subfields select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+/* Card-specific grid */
+.card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+/* Cash note box */
+.cash-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 1rem;
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    color: #92400e;
+    font-size: 0.9rem;
+}
+
+.cash-note span {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .payment-methods {
+        gap: 0.6rem;
+    }
+
+    .payment-card {
+        padding: 0.8rem 0.4rem;
+        font-size: 0.78rem;
+    }
+
+    .card-row {
+        grid-template-columns: 1fr;
     }
 }

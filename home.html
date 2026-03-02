@@ -21,9 +21,12 @@
                 <li><a href="index.html">View Public Site</a></li>
                 <li><a href="#" class="nav-link-auth" id="logout-btn">Logout</a></li>
                 <li>
-                    <div class="user-avatar">JD</div>
+                    <div class="user-avatar" id="user-avatar-initials"></div>
                 </li>
             </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
         </nav>
     </header>
 
@@ -254,6 +257,82 @@
                             <label for="message">Message of Hope (Optional)</label>
                             <textarea id="message" name="message" rows="3"
                                 placeholder="Write a small note to the beneficiaries..."></textarea>
+                        </div>
+                        <div class="form-group full-width" id="payment-section" style="display:none;">
+                            <label>Payment Method</label>
+                            <div class="payment-methods">
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="upi">
+                                    <div class="payment-card">
+                                        <span class="payment-icon">📱</span>
+                                        <span>UPI</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="card">
+                                    <div class="payment-card">
+                                        <span class="payment-icon">💳</span>
+                                        <span>Card</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="netbanking">
+                                    <div class="payment-card">
+                                        <span class="payment-icon">🏦</span>
+                                        <span>Net Banking</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="cash">
+                                    <div class="payment-card">
+                                        <span class="payment-icon">💵</span>
+                                        <span>Cash / Cheque</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- UPI Sub-fields -->
+                            <div id="pay-upi" class="pay-subfields" style="display:none;">
+                                <input type="text" id="upi-id" placeholder="Enter your UPI ID (e.g. name@upi)"
+                                    style="margin-top:1rem;">
+                            </div>
+
+                            <!-- Card Sub-fields -->
+                            <div id="pay-card" class="pay-subfields" style="display:none;">
+                                <div class="card-fields">
+                                    <input type="text" id="card-number" placeholder="Card Number (16 digits)"
+                                        maxlength="19">
+                                    <div class="card-row">
+                                        <input type="text" id="card-expiry" placeholder="MM / YY" maxlength="7">
+                                        <input type="text" id="card-cvv" placeholder="CVV" maxlength="3">
+                                    </div>
+                                    <input type="text" id="card-name" placeholder="Name on Card">
+                                </div>
+                            </div>
+
+                            <!-- Net Banking Sub-fields -->
+                            <div id="pay-netbanking" class="pay-subfields" style="display:none;">
+                                <select id="bank-select" style="margin-top:1rem;">
+                                    <option value="" disabled selected>Select your Bank</option>
+                                    <option>State Bank of India</option>
+                                    <option>HDFC Bank</option>
+                                    <option>ICICI Bank</option>
+                                    <option>Axis Bank</option>
+                                    <option>Kotak Mahindra Bank</option>
+                                    <option>Punjab National Bank</option>
+                                    <option>Bank of Baroda</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Cash / Cheque Sub-fields -->
+                            <div id="pay-cash" class="pay-subfields" style="display:none;">
+                                <div class="cash-note">
+                                    <span>📋</span>
+                                    <p>Our team will contact you within 24 hours to arrange cash/cheque pickup or
+                                        drop-off at a nearby centre.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-large">Submit Donation Request</button>
