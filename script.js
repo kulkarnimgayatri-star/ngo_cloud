@@ -71,6 +71,22 @@ if (form) {
     });
 }
 
+// Toggle Other Donation Input
+function toggleOtherInput() {
+    const select = document.getElementById('donation-type');
+    const otherGroup = document.getElementById('other-donation-group');
+    const otherInput = document.getElementById('other-donation-type');
+
+    if (select.value === 'Other') {
+        otherGroup.style.display = 'block';
+        otherInput.required = true;
+    } else {
+        otherGroup.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+}
+
 // Main Donation Form Handling
 const donationForm = document.getElementById('donation-form');
 if (donationForm) {
@@ -81,21 +97,129 @@ if (donationForm) {
         const name = formData.get('fullname');
         const email = formData.get('email');
         const ageGroup = formData.get('age-group');
-        const type = formData.get('donation-type');
+        let type = formData.get('donation-type');
         const amount = formData.get('amount');
 
+        if (type === 'Other') {
+            type = document.getElementById('other-donation-type').value || 'Other Donation';
+        }
+
         if (name && email && ageGroup && type) {
-            let message = `Thank you, ${name}! Your donation of ${type} for the ${ageGroup} category has been recorded.`;
+            let message = `Thank you, ${name}! Your donation of ${type} for the ${ageGroup} category has been securely recorded.`;
             if (amount) {
-                message += ` We've also noted your contribution of $${amount}.`;
+                message += ` We've noted your contribution of ₹${amount}.`;
             }
-            message += ` A confirmation has been sent to ${email}.`;
+            message += `\n\n[NGO Acceptance Flow] Your donation will first be verified and accepted by an NGO Admin or Worker before it is distributed to the Receiver. A confirmation has been sent to ${email}.`;
 
             alert(message);
             donationForm.reset();
+            toggleOtherInput(); // Reset the Other field visibility
             console.log("Donation Successful:", { name, email, ageGroup, type, amount });
+
+            // Close modal on successful submit
+            const modal = document.getElementById('donation-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
     });
+
+    // Modal Handling
+    const modal = document.getElementById('donation-modal');
+    const openBtn = document.getElementById('open-donation-modal');
+    const closeBtn = document.querySelector('.close-modal');
+    // Select all "Donate Now" buttons in the community feed
+    const feedButtons = document.querySelectorAll('.feed-card .btn');
+
+    if (modal && closeBtn) {
+        // Open modal via main button
+        if (openBtn) {
+            openBtn.addEventListener('click', () => {
+                const donationFormEl = document.getElementById('donation-form');
+                if (donationFormEl) {
+                    donationFormEl.reset(); // Clear name/email/amount etc.
+                }
+
+                // Explicitly reset the custom category logic
+                const categorySelect = document.getElementById('donation-type');
+                if (categorySelect) categorySelect.value = ''; // Reset to placeholder
+
+                toggleOtherInput(); // Will hide the "Other" text input because value != "Other"
+
+                modal.style.display = 'block';
+            });
+        }
+
+        // Open modal via "Empower Every Generation" category links
+        const categoryLinks = document.querySelectorAll('.open-donation-modal');
+        const ageGroupSelect = document.getElementById('age-group');
+        const ageGroupMap = {
+            'children': 'children',
+            'youth': 'youth',
+            'adults': 'adults',
+            'seniors': 'seniors'
+        };
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const donationFormEl = document.getElementById('donation-form');
+                if (donationFormEl) donationFormEl.reset();
+
+                // Detect which age group from the link text
+                const linkText = link.innerText.toLowerCase();
+                if (ageGroupSelect) {
+                    if (linkText.includes('children') || linkText.includes('infant')) {
+                        ageGroupSelect.value = 'children';
+                    } else if (linkText.includes('youth')) {
+                        ageGroupSelect.value = 'youth';
+                    } else if (linkText.includes('adult')) {
+                        ageGroupSelect.value = 'adults';
+                    } else if (linkText.includes('senior')) {
+                        ageGroupSelect.value = 'seniors';
+                    }
+                }
+
+                const categorySelect = document.getElementById('donation-type');
+                if (categorySelect) categorySelect.value = '';
+                toggleOtherInput();
+
+                modal.style.display = 'block';
+            });
+        });
+
+        // Open modal via community feed buttons
+        feedButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                modal.style.display = 'block';
+
+                // Get the title from the card
+                const card = e.target.closest('.feed-card');
+                if (card) {
+                    const title = card.querySelector('h3').innerText;
+
+                    // Set category select to "Other"
+                    const categorySelect = document.getElementById('donation-type');
+                    categorySelect.value = 'Other';
+
+                    // Trigger the toggle function to show the input field
+                    toggleOtherInput();
+
+                    // Set the value of the 'other' input to the title
+                    document.getElementById('other-donation-type').value = title;
+                }
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
 }
 
 // Login Form Handling

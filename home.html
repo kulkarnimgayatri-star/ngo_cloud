@@ -37,92 +37,256 @@
             </div>
         </section>
 
-        <section id="donate-dashboard" class="donation-form-section">
-            <div class="container">
-                <div class="form-wrapper reveal active">
-                    <div class="form-header">
-                        <h2>Donation Form</h2>
-                        <p>Select your category and help us make an impact.</p>
+        <div class="container dashboard-layout">
+            <!-- Left Column: Community Feed -->
+            <div class="layout-left">
+                <section id="community-feed" class="community-feed-section reveal active">
+                    <div class="section-title" style="margin-bottom: 2rem;">
+                        <h2 style="font-size: 2rem;">Community Funding Needs</h2>
+                        <p>Support direct requests from individuals and local communities</p>
                     </div>
-                    <form id="donation-form" class="main-donation-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="fullname">Full Name</label>
-                                <input type="text" id="fullname" name="fullname" placeholder="John Doe" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" placeholder="john@example.com" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="age-group">Beneficiary Age Group</label>
-                                <select id="age-group" name="age-group" required>
-                                    <option value="" disabled selected>Select an age group</option>
-                                    <option value="children">Children (0-12)</option>
-                                    <option value="youth">Youth (13-24)</option>
-                                    <option value="adults">Adults (25-60)</option>
-                                    <option value="seniors">Seniors (60+)</option>
-                                    <option value="all">All Groups (General Fund)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="donation-type">Donation Category</label>
-                                <select id="donation-type" name="donation-type" required>
-                                    <option value="" disabled selected>What are you donating?</option>
-                                    <option value="Food">Food</option>
-                                    <option value="Clothes">Clothes</option>
-                                    <option value="Study Materials">Study Materials</option>
-                                    <option value="Money">Money</option>
-                                    <option value="Electronic Items">Electronic Items</option>
-                                </select>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="amount">Donation Details / Amount</label>
-                                <div class="amount-input">
-                                    <input type="text" id="amount" name="amount"
-                                        placeholder="e.g. $50, 2 bags of clothes, 1 laptop...">
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                        <!-- Feed Card 1 -->
+                        <div class="feed-card track-card">
+                            <img src="https://images.unsplash.com/photo-1593113589915-18db50ed8127?q=80&w=600&auto=format&fit=crop"
+                                alt="Medical Emergency" class="feed-img">
+                            <div class="feed-content">
+                                <span class="feed-badge medical">Medical Emergency</span>
+                                <h3>Urgent Surgery for 5-Year Old</h3>
+                                <p class="feed-desc">Aryan's family needs urgent funds for his open-heart surgery. Every
+                                    small
+                                    contribution directly helps save his life.</p>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 65%;"></div>
+                                </div>
+                                <div class="track-meta">
+                                    <span>Target: ₹5,00,000</span>
+                                    <span>Raised: ₹3,25,000</span>
+                                </div>
+                                <div class="feed-footer">
+                                    <span class="feed-author">By: Sarita Sharma</span>
+                                    <button class="btn btn-primary btn-sm">Donate Now</button>
                                 </div>
                             </div>
-                            <div class="form-group full-width">
-                                <label for="message">Message of Hope (Optional)</label>
-                                <textarea id="message" name="message" rows="3"
-                                    placeholder="Write a small note to the beneficiaries..."></textarea>
+                        </div>
+
+                        <!-- Feed Card 2 -->
+                        <div class="feed-card track-card">
+                            <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop"
+                                alt="Education" class="feed-img">
+                            <div class="feed-content">
+                                <span class="feed-badge education">Education</span>
+                                <h3>Rebuilding the Primary School</h3>
+                                <p class="feed-desc">Recent floods destroyed the only school in our community. We are
+                                    raising
+                                    funds to rebuild classrooms and buy new study materials.</p>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 30%;"></div>
+                                </div>
+                                <div class="track-meta">
+                                    <span>Target: ₹2,50,000</span>
+                                    <span>Raised: ₹75,000</span>
+                                </div>
+                                <div class="feed-footer">
+                                    <span class="feed-author">By: Village Panchayat</span>
+                                    <button class="btn btn-primary btn-sm">Donate Now</button>
+                                </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-large">Submit Donation Request</button>
-                    </form>
+
+                        <!-- Feed Card 3 -->
+                        <div class="feed-card track-card">
+                            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop"
+                                alt="Community Support" class="feed-img">
+                            <div class="feed-content">
+                                <span class="feed-badge community">Community Support</span>
+                                <h3>Winter Clothes & Blankets Drive</h3>
+                                <p class="feed-desc">Help us provide warm clothes and blankets to the homeless shelter
+                                    this
+                                    winter. Funds will be used for direct bulk purchases.</p>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 85%;"></div>
+                                </div>
+                                <div class="track-meta">
+                                    <span>Target: ₹50,000</span>
+                                    <span>Raised: ₹42,500</span>
+                                </div>
+                                <div class="feed-footer">
+                                    <span class="feed-author">By: Helping Hands Group</span>
+                                    <button class="btn btn-primary btn-sm">Donate Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Donation Action & User Impact -->
+            <div class="layout-right">
+                <section id="donate-dashboard" class="donation-action-section reveal active"
+                    style="text-align: center; margin-bottom: 2rem;">
+                    <div class="action-card"
+                        style="background: var(--white); padding: 2rem; border-radius: 20px; box-shadow: var(--shadow);">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Ready to Make an Impact?</h2>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem; font-size: 0.9rem;">Choose to donate
+                            funds, clothes, food, or
+                            support a specific campaign.</p>
+                        <button id="open-donation-modal" class="btn btn-primary"
+                            style="width: 100%; font-size: 1.1rem; padding: 1rem;">Fill Donation Form</button>
+                    </div>
+                </section>
+
+                <section class="user-impact reveal active" style="margin-top: 0;">
+                    <div class="section-title" style="margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem;">Your Impact Journey</h2>
+                    </div>
+                    <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
+                        <div class="track-card">
+                            <h3 style="font-size: 1.25rem;">Recent Contributions</h3>
+                            <ul class="donation-history">
+                                <li><span>Money (₹8,300)</span> <span>Feb 20, 2026</span></li>
+                                <li><span>Clothes (3 units)</span> <span>Jan 15, 2026</span></li>
+                            </ul>
+                        </div>
+                        <div class="track-card"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Impact Points</h3>
+                            <div class="points-circle">
+                                <span>750</span>
+                                <p>Points Earned</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Empower Every Generation Section -->
+        <section class="categories-section" style="padding: 60px 0;">
+            <div class="container">
+                <div class="section-title reveal active" style="margin-bottom: 2.5rem;">
+                    <h2 style="font-size: 2rem;">Empower Every Generation</h2>
+                    <p>Choose a cause close to your heart and make a targeted impact</p>
+                </div>
+                <div class="categories-grid">
+                    <div class="category-card reveal active">
+                        <div class="category-icon">👶</div>
+                        <h3>Infants &amp; Children</h3>
+                        <p>Providing nutrition, vaccines, and early education for our youngest members.</p>
+                        <a href="#" class="category-link open-donation-modal">Donate for Children &rarr;</a>
+                    </div>
+                    <div class="category-card reveal active">
+                        <div class="category-icon">🎓</div>
+                        <h3>Youth &amp; Education</h3>
+                        <p>Scholarships, vocational training, and mentorship for future leaders.</p>
+                        <a href="#" class="category-link open-donation-modal">Donate for Youth &rarr;</a>
+                    </div>
+                    <div class="category-card reveal active">
+                        <div class="category-icon">👩‍💼</div>
+                        <h3>Adult Empowerment</h3>
+                        <p>Micro-loans and skills development for sustainable livelihoods.</p>
+                        <a href="#" class="category-link open-donation-modal">Donate for Adults &rarr;</a>
+                    </div>
+                    <div class="category-card reveal active">
+                        <div class="category-icon">👴</div>
+                        <h3>Elderly Care</h3>
+                        <p>Health screenings, community centers, and companionship for our seniors.</p>
+                        <a href="#" class="category-link open-donation-modal">Donate for Seniors &rarr;</a>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="user-impact container reveal active">
-            <div class="section-title">
-                <h2>Your Impact Journey</h2>
-            </div>
-            <div class="dashboard-grid">
-                <div class="track-card">
-                    <h3>Recent Contributions</h3>
-                    <ul class="donation-history">
-                        <li><span>Money ($100)</span> <span>Feb 20, 2026</span></li>
-                        <li><span>Clothes (3 units)</span> <span>Jan 15, 2026</span></li>
-                    </ul>
+        <!-- Donation Modal -->
+        <div id="donation-modal" class="modal">
+            <div class="modal-content form-wrapper">
+                <span class="close-modal">&times;</span>
+                <div class="form-header" style="margin-bottom: 2rem;">
+                    <h2>Donation Form</h2>
+                    <p>Select your category and help us make an impact.</p>
                 </div>
-                <div class="track-card">
-                    <h3>Impact Points</h3>
-                    <div class="points-circle">
-                        <span>750</span>
-                        <p>Points Earned</p>
+                <form id="donation-form" class="main-donation-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullname">Full Name</label>
+                            <input type="text" id="fullname" name="fullname" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="age-group">Beneficiary Age Group</label>
+                            <select id="age-group" name="age-group" required>
+                                <option value="" disabled selected>Select an age group</option>
+                                <option value="children">Children (0-12)</option>
+                                <option value="youth">Youth (13-24)</option>
+                                <option value="adults">Adults (25-60)</option>
+                                <option value="seniors">Seniors (60+)</option>
+                                <option value="all">All Groups (General Fund)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="donation-type">Donation Category</label>
+                            <select id="donation-type" name="donation-type" required onchange="toggleOtherInput()">
+                                <option value="" disabled selected>What are you donating?</option>
+                                <option value="Food">Food</option>
+                                <option value="Clothes">Clothes</option>
+                                <option value="Study Materials">Study Materials</option>
+                                <option value="Money">Money</option>
+                                <option value="Electronic Items">Electronic Items</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width" id="other-donation-group"
+                            style="display: none; margin-top: -10px; margin-bottom: 10px;">
+                            <input type="text" id="other-donation-type" name="other-donation-type"
+                                placeholder="Please specify...">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="amount">Donation Details / Amount</label>
+                            <div class="amount-input">
+                                <input type="text" id="amount" name="amount"
+                                    placeholder="e.g. ₹5,000, 2 bags of clothes, 1 laptop...">
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="message">Message of Hope (Optional)</label>
+                            <textarea id="message" name="message" rows="3"
+                                placeholder="Write a small note to the beneficiaries..."></textarea>
+                        </div>
                     </div>
-                </div>
+                    <button type="submit" class="btn btn-primary btn-large">Submit Donation Request</button>
+                </form>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer class="footer">
-        <div class="container">
-            <div class="footer-bottom">
-                <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <div class="logo">Unity<span>Care</span></div>
+                <p>A non-profit dedicated to making giving simple and tracking visible.</p>
             </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">How it Works</a></li>
+                    <li><a href="#">Annual Reports</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Stay Updated</h4>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email">
+                    <button type="submit">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
         </div>
     </footer>
 

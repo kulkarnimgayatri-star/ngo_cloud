@@ -23,8 +23,24 @@
                 <li><a href="#about">Our Mission</a></li>
                 <li><a href="#categories">Categories</a></li>
                 <li><a href="#track">Track Funds</a></li>
-                <li><a href="login.html" class="nav-link-auth">Login</a></li>
-                <li><a href="signup.html" class="btn btn-primary">Sign Up</a></li>
+                <li class="dropdown">
+                    <a href="#" class="nav-link-auth">Login ▼</a>
+                    <div class="dropdown-content">
+                        <a href="login.html?role=donator">As Donator</a>
+                        <a href="login.html?role=receiver">As Receiver</a>
+                        <a href="login.html?role=worker">As Worker</a>
+                        <a href="login.html?role=admin">As Admin</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="btn btn-primary">Sign Up ▼</a>
+                    <div class="dropdown-content">
+                        <a href="signup.html?role=donator">As Donator</a>
+                        <a href="signup.html?role=receiver">As Receiver</a>
+                        <a href="signup.html?role=worker">As Worker</a>
+                        <a href="signup.html?role=admin">As Admin</a>
+                    </div>
+                </li>
             </ul>
         </nav>
     </header>
@@ -37,8 +53,8 @@
                     <p class="reveal">Every penny you donate is tracked in real-time. See exactly how your contribution
                         changes lives, from the moment it leaves your wallet to the project on the ground.</p>
                     <div class="hero-btns reveal">
-                        <a href="signup.html" class="btn btn-primary">Make an Impact</a>
-                        <a href="login.html" class="btn btn-secondary">Track Live Funds</a>
+                        <a href="signup.html?role=donator" class="btn btn-primary">Make an Impact</a>
+                        <a href="login.html?role=donator" class="btn btn-secondary">Track Live Funds</a>
                     </div>
                 </div>
                 <div class="hero-image reveal">
@@ -46,7 +62,7 @@
                         alt="Children smiling" id="hero-img">
                     <div class="hero-badge">
                         <span class="pulse"></span>
-                        $1.2M Funds Tracked Live
+                        ₹100M Funds Tracked Live
                     </div>
                 </div>
             </div>
@@ -63,25 +79,25 @@
                         <div class="category-icon">👶</div>
                         <h3>Infants & Children</h3>
                         <p>Providing nutrition, vaccines, and early education for our youngest members.</p>
-                        <a href="login.html" class="category-link">Support Children &rarr;</a>
+                        <a href="login.html?role=donator" class="category-link">Support Children &rarr;</a>
                     </div>
                     <div class="category-card reveal">
                         <div class="category-icon">🎓</div>
                         <h3>Youth & Education</h3>
                         <p>Scholarships, vocational training, and mentorship for future leaders.</p>
-                        <a href="login.html" class="category-link">Support Youth &rarr;</a>
+                        <a href="login.html?role=donator" class="category-link">Support Youth &rarr;</a>
                     </div>
                     <div class="category-card reveal">
                         <div class="category-icon">👩‍💼</div>
                         <h3>Adult Empowerment</h3>
                         <p>Micro-loans and skills development for sustainable livelihoods.</p>
-                        <a href="login.html" class="category-link">Support Adults &rarr;</a>
+                        <a href="login.html?role=donator" class="category-link">Support Adults &rarr;</a>
                     </div>
                     <div class="category-card reveal">
                         <div class="category-icon">👴</div>
                         <h3>Elderly Care</h3>
                         <p>Health screenings, community centers, and companionship for our seniors.</p>
-                        <a href="login.html" class="category-link">Support Seniors &rarr;</a>
+                        <a href="login.html?role=donator" class="category-link">Support Seniors &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -100,8 +116,8 @@
                             <div class="progress" style="width: 75%;"></div>
                         </div>
                         <div class="track-meta">
-                            <span>Target: $50,000</span>
-                            <span>Raised: $37,500</span>
+                            <span>Target: ₹4,150,000</span>
+                            <span>Raised: ₹3,112,500</span>
                         </div>
                         <p class="track-status">Status: <b>Building School in Rural Area</b></p>
                     </div>
@@ -111,8 +127,8 @@
                             <div class="progress" style="width: 40%;"></div>
                         </div>
                         <div class="track-meta">
-                            <span>Target: $20,000</span>
-                            <span>Raised: $8,000</span>
+                            <span>Target: ₹1,660,000</span>
+                            <span>Raised: ₹664,000</span>
                         </div>
                         <p class="track-status">Status: <b>Site Survey Underway</b></p>
                     </div>
@@ -122,8 +138,8 @@
                             <div class="progress" style="width: 90%;"></div>
                         </div>
                         <div class="track-meta">
-                            <span>Target: $15,000</span>
-                            <span>Raised: $13,500</span>
+                            <span>Target: ₹1,245,000</span>
+                            <span>Raised: ₹1,120,500</span>
                         </div>
                         <p class="track-status">Status: <b>Supplies Distribution</b></p>
                     </div>
