@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giving Hub | UnityCare NGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Unity<span>Care</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">View Public Site</a></li>
+                <li><a href="#" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li>
+                    <div class="user-avatar">JD</div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-hero">
+            <div class="container">
+                <div class="dashboard-welcome reveal active">
+                    <h1>Welcome Back, <span id="user-name-display">Philanthropist</span></h1>
+                    <p>Your presence makes a difference. Ready to contribute today?</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="donate-dashboard" class="donation-form-section">
+            <div class="container">
+                <div class="form-wrapper reveal active">
+                    <div class="form-header">
+                        <h2>Donation Form</h2>
+                        <p>Select your category and help us make an impact.</p>
+                    </div>
+                    <form id="donation-form" class="main-donation-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="fullname">Full Name</label>
+                                <input type="text" id="fullname" name="fullname" placeholder="John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="age-group">Beneficiary Age Group</label>
+                                <select id="age-group" name="age-group" required>
+                                    <option value="" disabled selected>Select an age group</option>
+                                    <option value="children">Children (0-12)</option>
+                                    <option value="youth">Youth (13-24)</option>
+                                    <option value="adults">Adults (25-60)</option>
+                                    <option value="seniors">Seniors (60+)</option>
+                                    <option value="all">All Groups (General Fund)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="donation-type">Donation Category</label>
+                                <select id="donation-type" name="donation-type" required>
+                                    <option value="" disabled selected>What are you donating?</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Clothes">Clothes</option>
+                                    <option value="Study Materials">Study Materials</option>
+                                    <option value="Money">Money</option>
+                                    <option value="Electronic Items">Electronic Items</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="amount">Donation Details / Amount</label>
+                                <div class="amount-input">
+                                    <input type="text" id="amount" name="amount"
+                                        placeholder="e.g. $50, 2 bags of clothes, 1 laptop...">
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="message">Message of Hope (Optional)</label>
+                                <textarea id="message" name="message" rows="3"
+                                    placeholder="Write a small note to the beneficiaries..."></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Submit Donation Request</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="user-impact container reveal active">
+            <div class="section-title">
+                <h2>Your Impact Journey</h2>
+            </div>
+            <div class="dashboard-grid">
+                <div class="track-card">
+                    <h3>Recent Contributions</h3>
+                    <ul class="donation-history">
+                        <li><span>Money ($100)</span> <span>Feb 20, 2026</span></li>
+                        <li><span>Clothes (3 units)</span> <span>Jan 15, 2026</span></li>
+                    </ul>
+                </div>
+                <div class="track-card">
+                    <h3>Impact Points</h3>
+                    <div class="points-circle">
+                        <span>750</span>
+                        <p>Points Earned</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
