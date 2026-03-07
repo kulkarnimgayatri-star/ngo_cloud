@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver Dashboard | UnityCare NGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dashboard-body">
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Unity<span>Care</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">View Public Site</a></li>
+                <li><a href="#" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li>
+                    <div class="user-avatar" id="user-avatar-initials"></div>
+                </li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-hero">
+            <div class="container">
+                <div class="dashboard-welcome reveal active">
+                    <h1>Welcome Back, <span id="user-name-display">Philanthropist</span></h1>
+                    <p>Your presence makes a difference. Ready to contribute today?</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="container dashboard-layout">
+            <!-- Left Column: Community Feed -->
+            <div class="layout-left">
+                <div class="section-title"
+                    style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 style="font-size: 2rem;">Your Active Donation Requests</h2>
+                        <p>Track the progress of the campaigns you have created for yourself or your community</p>
+                    </div>
+                </div>
+                <div class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <!-- Request Card 1: Medical -->
+                    <div class="feed-card track-card">
+                        <img src="https://images.unsplash.com/photo-1584820927498-cafe8c1c9af2?q=80&w=600&auto=format&fit=crop"
+                            alt="My Medical Request" class="feed-img">
+                        <div class="feed-content">
+                            <span class="feed-badge medical">Medical Emergency</span>
+                            <h3>Surgery Funds Needed</h3>
+                            <p class="feed-desc">I am requesting funds for my upcoming operation. Thank you to everyone
+                                who has contributed so far.</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 45%;"></div>
+                            </div>
+                            <div class="track-meta">
+                                <span>Target: ₹1,00,000</span>
+                                <span>Received: ₹45,000</span>
+                            </div>
+                            <div class="feed-footer">
+                                <span class="feed-author" style="color: var(--primary-color);">Status: Active</span>
+                                <button class="btn btn-secondary btn-sm">Update Post</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Request Card 2: Education -->
+                    <div class="feed-card track-card">
+                        <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop"
+                            alt="My Education Request" class="feed-img">
+                        <div class="feed-content">
+                            <span class="feed-badge education">Education</span>
+                            <h3>College Tuition & Study Materials</h3>
+                            <p class="feed-desc">I need support to cover my college tuition fees and essential study
+                                materials for the upcoming semester.</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 20%;"></div>
+                            </div>
+                            <div class="track-meta">
+                                <span>Target: ₹60,000</span>
+                                <span>Received: ₹12,000</span>
+                            </div>
+                            <div class="feed-footer">
+                                <span class="feed-author" style="color: var(--primary-color);">Status: Active</span>
+                                <button class="btn btn-secondary btn-sm">Update Post</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Donation Action & User Impact -->
+            <div class="layout-right">
+                <section id="donate-dashboard" class="donation-action-section reveal active"
+                    style="text-align: center; margin-bottom: 2rem;">
+                    <div class="action-card"
+                        style="background: var(--white); padding: 2rem; border-radius: 20px; box-shadow: var(--shadow); background: linear-gradient(135deg, var(--white) 0%, #f0fdf4 100%); border: 1px solid rgba(46,204,113,0.2);">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--primary-color);">Need Urgent
+                            Help?</h2>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem; font-size: 0.9rem;">Our community of
+                            donators is here to support you. Post your request now.</p>
+                        <button
+                            onclick="document.getElementById('donation-modal').style.display='block'; document.getElementById('request-form') && document.getElementById('request-form').reset();"
+                            class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;">Create a
+                            Post</button>
+                    </div>
+                </section>
+
+                <section class="user-impact reveal active" style="margin-top: 0;">
+                    <div class="section-title" style="margin-bottom: 2rem;">
+                        <h2 style="font-size: 1.5rem;">Assistance Tracker</h2>
+                    </div>
+                    <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
+                        <div class="track-card">
+                            <h3 style="font-size: 1.25rem;">Recent Disbursements</h3>
+                            <ul class="donation-history">
+                                <li><span>Received (₹25,000)</span> <span>Feb 25, 2026</span></li>
+                                <li><span>Medicines (Completed)</span> <span>Jan 10, 2026</span></li>
+                            </ul>
+                        </div>
+                        <div class="track-card"
+                            style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--primary-color); color: var(--white);">
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--white);">Total Funds
+                                Received</h3>
+                            <div class="points-circle"
+                                style="border-color: rgba(255,255,255,0.3); color: var(--white);">
+                                <span>₹25k</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+
+        <!-- Donation Modal -->
+        <div id="donation-modal" class="modal">
+            <div class="modal-content form-wrapper">
+                <span class="close-modal">&times;</span>
+                <div class="form-header" style="margin-bottom: 2rem;">
+                    <h2>Create a Request Post</h2>
+                    <p>Share your story and specify what kind of assistance you need.</p>
+                </div>
+                <form id="request-form" class="main-donation-form">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="req-title">Request Title</label>
+                            <input type="text" id="req-title" name="req-title"
+                                placeholder="e.g. Funds for College Tuition" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="req-category">Assistance Category</label>
+                            <select id="req-category" name="req-category" required>
+                                <option value="" disabled selected>Select category...</option>
+                                <option value="Medical">Medical Emergency</option>
+                                <option value="Education">Education</option>
+                                <option value="Food">Food / Rations</option>
+                                <option value="Housing">Housing / Shelter</option>
+                                <option value="Other">Other Community Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="req-target">Target Amount / Quantity <span
+                                    style="color: var(--text-light); font-weight: 400;">(Optional)</span></label>
+                            <input type="text" id="req-target" name="req-target"
+                                placeholder="e.g. ₹50,000 or 50 Blankets">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="req-desc">Detailed Description</label>
+                            <textarea id="req-desc" name="req-desc" rows="4"
+                                placeholder="Explain your situation, why you need help, and how the funds/items will be used..."
+                                required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large" style="margin-top: 1rem;">Publish
+                        Request</button>
+                </form>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <div class="logo">Unity<span>Care</span></div>
+                <p>A non-profit dedicated to making giving simple and tracking visible.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">How it Works</a></li>
+                    <li><a href="#">Annual Reports</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Stay Updated</h4>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email">
+                    <button type="submit">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Inline close handlers for receiver request modal
+        document.querySelector('.close-modal').addEventListener('click', function () {
+            document.getElementById('donation-modal').style.display = 'none';
+        });
+        window.addEventListener('click', function (e) {
+            const modal = document.getElementById('donation-modal');
+            if (e.target === modal) modal.style.display = 'none';
+        });
+        document.getElementById('request-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const title = document.getElementById('req-title').value;
+            const category = document.getElementById('req-category').value;
+            const target = document.getElementById('req-target').value;
+            if (title && category && target) {
+                alert('Your request "' + title + '" for ' + target + ' has been submitted for review! Once approved by an Admin, it will be visible to Donators.');
+                this.reset();
+                document.getElementById('donation-modal').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

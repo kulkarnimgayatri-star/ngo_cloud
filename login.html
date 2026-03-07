@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | UnityCare NGO</title>
+    <title>Log In | UnityCare NGO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,10 +19,21 @@
             <div class="login-header">
                 <a href="index.html" class="login-logo logo">Unity<span>Care</span></a>
                 <h2>Welcome Back</h2>
-                <p>Log in to track your donations and impact.</p>
+                <p>Log in to your account.</p>
             </div>
 
             <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="login-role">Select Role</label>
+                    <select id="login-role" class="role-select"
+                        style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1rem; color: var(--text-color); background-color: var(--card-bg); outline: none;"
+                        required>
+                        <option value="Donator" selected>Donator</option>
+                        <option value="Receiver">Receiver</option>
+                        <option value="Worker">Worker</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="login-email">Email Address</label>
                     <input type="email" id="login-email" placeholder="name@example.com" required>
@@ -52,11 +63,10 @@
             </div>
 
             <p class="login-footer">
-                Don't have an account? <a href="signup.html">Create an account</a>
+                Don't have an account? <a href="signup.html">Sign Up</a>
             </p>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 

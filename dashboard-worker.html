@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard | UnityCare NGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        .task-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .task-card.urgent {
+            border-color: #e74c3c;
+        }
+
+        .task-card.in-progress {
+            border-color: #f39c12;
+        }
+
+        .task-card.done {
+            border-color: #27ae60;
+            opacity: 0.75;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .task-card h3 {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .task-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .task-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .task-actions .btn {
+            padding: 0.35rem 0.9rem;
+            font-size: 0.8rem;
+        }
+
+        .badge-urgent {
+            background: #fde8e8;
+            color: #c0392b;
+        }
+
+        .badge-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-done {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-scheduled {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .worker-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .wstat {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .wstat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .wstat .lbl {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            margin-top: 0.2rem;
+        }
+
+        .wstat.green .num {
+            color: #27ae60;
+        }
+
+        .wstat.orange .num {
+            color: #e67e22;
+        }
+
+        .wstat.red .num {
+            color: #e74c3c;
+        }
+
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media(max-width:700px) {
+            .tasks-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .worker-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Unity<span>Care</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">View Public Site</a></li>
+                <li><a href="#" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li>
+                    <div class="user-avatar" id="user-avatar-initials"></div>
+                </li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-hero">
+            <div class="container">
+                <div class="dashboard-welcome reveal active">
+                    <h1>Field Worker Hub &mdash; <span id="user-name-display">Worker</span></h1>
+                    <p>Manage your assigned tasks, update field progress, and log reports.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="container">
+
+            <!-- Worker Quick Stats -->
+            <div class="worker-stats">
+                <div class="wstat green">
+                    <div class="num">8</div>
+                    <div class="lbl">Tasks Completed This Month</div>
+                </div>
+                <div class="wstat orange">
+                    <div class="num">3</div>
+                    <div class="lbl">Tasks In Progress</div>
+                </div>
+                <div class="wstat red">
+                    <div class="num">2</div>
+                    <div class="lbl">Urgent / Overdue</div>
+                </div>
+            </div>
+
+            <!-- Assigned Tasks -->
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.6rem; margin-bottom: 0.4rem;">Assigned Field Tasks</h2>
+                <p style="color: var(--text-light); font-size: 0.9rem;">Review your responsibilities and update their
+                    status</p>
+            </div>
+            <div class="tasks-grid">
+
+                <!-- Task 1 -->
+                <div class="task-card urgent">
+                    <div class="task-header">
+                        <h3>Deliver Medicines — Priya Verma</h3>
+                        <span class="feed-badge badge-urgent">Urgent</span>
+                    </div>
+                    <p>Collect approved medicines from District Hospital and deliver to Priya Verma's address in Sector
+                        12 by today.</p>
+                    <div class="task-meta">
+                        <span>📍 Sector 12, Delhi</span>
+                        <span>📅 Due: 05 Mar 2026</span>
+                        <span>🏷️ Medical</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 40%;"></div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-primary">Mark In-Progress</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="task-card in-progress">
+                    <div class="task-header">
+                        <h3>School Supply Distribution — Ravi Shankar</h3>
+                        <span class="feed-badge badge-progress">In Progress</span>
+                    </div>
+                    <p>Distribute collected books and stationery kits to 3 children. Confirm receipt with guardian
+                        signature.</p>
+                    <div class="task-meta">
+                        <span>📍 Laxmi Nagar, Delhi</span>
+                        <span>📅 Due: 06 Mar 2026</span>
+                        <span>🏷️ Education</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 60%;"></div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-primary">Mark Complete</button>
+                        <button class="btn btn-secondary">Log Update</button>
+                    </div>
+                </div>
+
+                <!-- Task 3 -->
+                <div class="task-card">
+                    <div class="task-header">
+                        <h3>Food Ration Drop-off — Sunita Devi</h3>
+                        <span class="feed-badge badge-scheduled">Scheduled</span>
+                    </div>
+                    <p>Pick up 1 ration kit from the NGO warehouse and deliver to Sunita Devi's family of 6 in Yamuna
+                        Vihar.</p>
+                    <div class="task-meta">
+                        <span>📍 Yamuna Vihar, Delhi</span>
+                        <span>📅 Due: 07 Mar 2026</span>
+                        <span>🏷️ Food</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 10%;"></div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-primary">Start Task</button>
+                        <button class="btn btn-secondary">View Details</button>
+                    </div>
+                </div>
+
+                <!-- Task 4 -->
+                <div class="task-card in-progress">
+                    <div class="task-header">
+                        <h3>Shelter Assessment — Mohan Lal</h3>
+                        <span class="feed-badge badge-progress">In Progress</span>
+                    </div>
+                    <p>Visit flood-affected site and assess temporary shelter requirements. Submit photo evidence and
+                        cost estimate.</p>
+                    <div class="task-meta">
+                        <span>📍 Narela, Delhi</span>
+                        <span>📅 Due: 08 Mar 2026</span>
+                        <span>🏷️ Housing</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 50%;"></div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-primary">Mark Complete</button>
+                        <button class="btn btn-secondary">Log Update</button>
+                    </div>
+                </div>
+
+                <!-- Task 5 -->
+                <div class="task-card done">
+                    <div class="task-header">
+                        <h3>Cancer Treatment Pickup — Ananya Singh</h3>
+                        <span class="feed-badge badge-done">Completed</span>
+                    </div>
+                    <p>Collected prescribed chemotherapy medicines from AIIMS pharmacy and delivered to patient's home.
+                    </p>
+                    <div class="task-meta">
+                        <span>📍 Safdarjung, Delhi</span>
+                        <span>📅 Done: 02 Mar 2026</span>
+                        <span>🏷️ Medical</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 100%;"></div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-secondary">View Report</button>
+                    </div>
+                </div>
+
+                <!-- Task 6 -->
+                <div class="task-card done">
+                    <div class="task-header">
+                        <h3>Tuition Fee Deposit — Rahul Kumar</h3>
+                        <span class="feed-badge badge-done">Completed</span>
+                    </div>
+                    <p>Deposited approved tuition fund amount at college cashier and collected official receipt for
+                        records.</p>
+                    <div class="task-meta">
+                        <span>📍 Rohini, Delhi</span>
+                        <span>📅 Done: 28 Feb 2026</span>
+                        <span>🏷️ Education</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 100%;"></div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn btn-secondary">View Report</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <div class="logo">Unity<span>Care</span></div>
+                <p>A non-profit dedicated to making giving simple and tracking visible.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">How it Works</a></li>
+                    <li><a href="#">Annual Reports</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Stay Updated</h4>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email">
+                    <button type="submit">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

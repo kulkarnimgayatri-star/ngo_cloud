@@ -190,103 +190,97 @@ if (donationForm) {
             }
         }
     });
+}
 
-    // Modal Handling
-    const modal = document.getElementById('donation-modal');
-    const openBtn = document.getElementById('open-donation-modal');
-    const closeBtn = document.querySelector('.close-modal');
-    // Select all "Donate Now" buttons in the community feed
-    const feedButtons = document.querySelectorAll('.feed-card .btn');
+// ── Modal Handling (shared across all dashboards) ──────────────────────────
+const modal = document.getElementById('donation-modal');
+const openBtn = document.getElementById('open-donation-modal');
+const closeBtn = document.querySelector('.close-modal');
 
-    if (modal && closeBtn) {
-        // Open modal via main button
-        if (openBtn) {
-            openBtn.addEventListener('click', () => {
-                const donationFormEl = document.getElementById('donation-form');
-                if (donationFormEl) {
-                    donationFormEl.reset(); // Clear name/email/amount etc.
-                }
+if (modal && closeBtn) {
+    // Open modal via main button ("Create a Post" / "Fill Donation Form")
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            // Receiver dashboard uses request-form; others use donation-form
+            const requestFormEl = document.getElementById('request-form');
+            const donationFormEl = document.getElementById('donation-form');
 
-                // Explicitly reset the custom category logic
-                const categorySelect = document.getElementById('donation-type');
-                if (categorySelect) categorySelect.value = ''; // Reset to placeholder
-
-                toggleOtherInput(); // Will hide the "Other" text input because value != "Other"
-
-                modal.style.display = 'block';
-            });
-        }
-
-        // Open modal via "Empower Every Generation" category links
-        const categoryLinks = document.querySelectorAll('.open-donation-modal');
-        const ageGroupSelect = document.getElementById('age-group');
-        const ageGroupMap = {
-            'children': 'children',
-            'youth': 'youth',
-            'adults': 'adults',
-            'seniors': 'seniors'
-        };
-        categoryLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const donationFormEl = document.getElementById('donation-form');
-                if (donationFormEl) donationFormEl.reset();
-
-                // Detect which age group from the link text
-                const linkText = link.innerText.toLowerCase();
-                if (ageGroupSelect) {
-                    if (linkText.includes('children') || linkText.includes('infant')) {
-                        ageGroupSelect.value = 'children';
-                    } else if (linkText.includes('youth')) {
-                        ageGroupSelect.value = 'youth';
-                    } else if (linkText.includes('adult')) {
-                        ageGroupSelect.value = 'adults';
-                    } else if (linkText.includes('senior')) {
-                        ageGroupSelect.value = 'seniors';
-                    }
-                }
-
+            if (requestFormEl) {
+                requestFormEl.reset();
+            } else if (donationFormEl) {
+                donationFormEl.reset();
                 const categorySelect = document.getElementById('donation-type');
                 if (categorySelect) categorySelect.value = '';
                 toggleOtherInput();
-
-                modal.style.display = 'block';
-            });
-        });
-
-        // Open modal via community feed buttons
-        feedButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                modal.style.display = 'block';
-
-                // Get the title from the card
-                const card = e.target.closest('.feed-card');
-                if (card) {
-                    const title = card.querySelector('h3').innerText;
-
-                    // Set category select to "Other"
-                    const categorySelect = document.getElementById('donation-type');
-                    categorySelect.value = 'Other';
-
-                    // Trigger the toggle function to show the input field
-                    toggleOtherInput();
-
-                    // Set the value of the 'other' input to the title
-                    document.getElementById('other-donation-type').value = title;
-                }
-            });
-        });
-
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
             }
+
+            modal.style.display = 'block';
         });
     }
+
+    // Open modal via "Empower Every Generation" category links (other dashboards)
+    const categoryLinks = document.querySelectorAll('.open-donation-modal');
+    const ageGroupSelect = document.getElementById('age-group');
+    categoryLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const donationFormEl = document.getElementById('donation-form');
+            if (donationFormEl) donationFormEl.reset();
+
+            const linkText = link.innerText.toLowerCase();
+            if (ageGroupSelect) {
+                if (linkText.includes('children') || linkText.includes('infant')) {
+                    ageGroupSelect.value = 'children';
+                } else if (linkText.includes('youth')) {
+                    ageGroupSelect.value = 'youth';
+                } else if (linkText.includes('adult')) {
+                    ageGroupSelect.value = 'adults';
+                } else if (linkText.includes('senior')) {
+                    ageGroupSelect.value = 'seniors';
+                }
+            }
+
+            const categorySelect = document.getElementById('donation-type');
+            if (categorySelect) categorySelect.value = '';
+            toggleOtherInput();
+
+            modal.style.display = 'block';
+        });
+    });
+
+    // Open modal via community feed "Donate Now" buttons (other dashboards)
+    const feedButtons = document.querySelectorAll('.feed-card .btn');
+    feedButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Don't open for "Update Post" buttons on receiver dashboard
+            if (btn.innerText.trim() === 'Update Post') return;
+            modal.style.display = 'block';
+
+            const card = e.target.closest('.feed-card');
+            if (card) {
+                const titleEl = card.querySelector('h3');
+                const categorySelect = document.getElementById('donation-type');
+                if (categorySelect && titleEl) {
+                    categorySelect.value = 'Other';
+                    toggleOtherInput();
+                    const otherInput = document.getElementById('other-donation-type');
+                    if (otherInput) otherInput.value = titleEl.innerText;
+                }
+            }
+        });
+    });
+
+    // Close on X button
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Close on backdrop click
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 }
 
 // Login Form Handling
@@ -298,12 +292,8 @@ if (loginForm) {
         const password = document.getElementById('login-password').value;
 
         if (email && password) {
-            // Detect role from filename
-            const filename = window.location.pathname.split('/').pop().toLowerCase();
-            let role = 'Donator';
-            if (filename.includes('receiver')) role = 'Receiver';
-            else if (filename.includes('worker')) role = 'Worker';
-            else if (filename.includes('admin')) role = 'Admin';
+            const roleSelect = document.getElementById('login-role');
+            const role = roleSelect ? roleSelect.value : 'Donator';
 
             // Derive a display name from the email prefix
             const prefix = email.split('@')[0];
@@ -315,8 +305,14 @@ if (loginForm) {
             sessionStorage.setItem('userEmail', email);
             sessionStorage.setItem('userName', displayName);
             sessionStorage.setItem('userRole', role);
-            alert(`Login successful! Welcome, ${displayName} (${role})! Redirecting to your Dashboard...`);
-            window.location.href = 'home.html';
+
+            if (role.toLowerCase() === 'receiver' && !sessionStorage.getItem('profileCompleted')) {
+                alert(`Login successful! Redirecting to complete your profile...`);
+                window.location.href = `onboarding-receiver.html`;
+            } else {
+                alert(`Login successful! Welcome, ${displayName} (${role})! Redirecting to your Dashboard...`);
+                window.location.href = `dashboard-${role.toLowerCase()}.html`;
+            }
         }
     });
 }
@@ -345,26 +341,32 @@ if (signupForm) {
         const password = document.getElementById('signup-password').value;
 
         if (name && email && password) {
-            // Detect role from filename to redirect correctly
-            const filename = window.location.pathname.split('/').pop().toLowerCase();
-            let loginUrl = 'login-donator.html';
-            if (filename.includes('receiver')) loginUrl = 'login-receiver.html';
-            else if (filename.includes('worker')) loginUrl = 'login-worker.html';
-            else if (filename.includes('admin')) loginUrl = 'login-admin.html';
+            const roleSelect = document.getElementById('signup-role');
+            const role = roleSelect ? roleSelect.value : 'Donator';
+            const displayName = name.trim();
 
-            sessionStorage.setItem('userName', name);
-            alert(`Account created successfully for ${name}! Please sign in.`);
-            window.location.href = loginUrl;
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userEmail', email);
+            sessionStorage.setItem('userName', displayName);
+            sessionStorage.setItem('userRole', role);
+
+            if (role.toLowerCase() === 'receiver' && !sessionStorage.getItem('profileCompleted')) {
+                alert(`Account created successfully! Welcome, ${displayName}. Please complete your profile.`);
+                window.location.href = `onboarding-receiver.html`;
+            } else {
+                alert(`Account created successfully! Welcome, ${displayName} (${role})! Redirecting to your Dashboard...`);
+                window.location.href = `dashboard-${role.toLowerCase()}.html`;
+            }
         }
     });
 }
 
 // Dashboard Init
-if (window.location.pathname.includes('home.html')) {
+if (window.location.pathname.includes('dashboard-')) {
     const isLoggedIn = sessionStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
-        alert('Please login to access the donation hub.');
-        window.location.href = 'login-donator.html';
+        alert('Please login to access the dashboard.');
+        window.location.href = 'login.html';
     }
 
     const userName = sessionStorage.getItem('userName') || 'Supporter';
@@ -380,4 +382,55 @@ if (window.location.pathname.includes('home.html')) {
             : userName.substring(0, 2).toUpperCase();
         avatarEl.innerText = initials;
     }
+}
+
+// Role Pre-select logic
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get('role');
+
+    if (roleParam) {
+        // Capitalize the first letter
+        const role = roleParam.charAt(0).toUpperCase() + roleParam.slice(1);
+
+        const loginRoleSelect = document.getElementById('login-role');
+        if (loginRoleSelect) {
+            loginRoleSelect.value = role;
+        }
+
+        const signupRoleSelect = document.getElementById('signup-role');
+        if (signupRoleSelect) {
+            signupRoleSelect.value = role;
+        }
+    }
+});
+
+// Receiver Dashboard Request Form
+const requestForm = document.getElementById('request-form');
+if (requestForm) {
+    requestForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(requestForm);
+        const title = formData.get('req-title');
+        const category = formData.get('req-category');
+        const target = formData.get('req-target');
+
+        if (title && category && target) {
+            alert(`Your request "${title}" for ${target} has been submitted for review! Once approved by an Admin, it will be visible to Donators.`);
+            requestForm.reset();
+            const modal = document.getElementById('donation-modal');
+            if (modal) modal.style.display = 'none';
+        }
+    });
+}
+
+// Open modal from receiver large plus card
+const openReceiverModalBtn = document.getElementById('open-receiver-modal');
+if (openReceiverModalBtn) {
+    openReceiverModalBtn.addEventListener('click', () => {
+        const modal = document.getElementById('donation-modal');
+        const formEl = document.getElementById('request-form');
+        if (formEl) formEl.reset();
+        if (modal) modal.style.display = 'block';
+    });
 }

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile | UnityCare NGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        .onboarding-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+            padding: 2rem;
+        }
+
+        .onboarding-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .onboarding-card h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .onboarding-card p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="onboarding-container">
+        <div class="onboarding-card reveal active">
+            <div class="text-center" style="text-align: center;">
+                <a href="index.html" class="logo"
+                    style="font-size: 2rem; margin-bottom: 1rem; display: inline-block;">Unity<span>Care</span></a>
+                <h2>Complete Your Profile</h2>
+                <p>Tell us more about your situation so we can better assist you.</p>
+            </div>
+
+            <form id="onboarding-form">
+                <!-- Profile Section -->
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="+91 9876543210" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" required>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label for="address">Current Address</label>
+                            <textarea id="address" rows="2" placeholder="Street, City, State, ZIP" required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assistance Category Section -->
+                <div class="form-section">
+                    <h3>Primary Need Category</h3>
+                    <div class="form-group">
+                        <label>What type of assistance do you primarily need?</label>
+                        <select id="assistance-category" required>
+                            <option value="" disabled selected>Select category...</option>
+                            <option value="medical">Medical / Healthcare</option>
+                            <option value="education">Education / Scholarship</option>
+                            <option value="food">Food & Groceries</option>
+                            <option value="housing">Housing / Shelter</option>
+                            <option value="disaster">Disaster Relief</option>
+                            <option value="other">Other Needs</option>
+                        </select>
+                    </div>
+
+                    <!-- Medical specifics (hidden by default) -->
+                    <div id="medical-details" class="form-group"
+                        style="display: none; margin-top: 1.5rem; background: var(--white); padding: 1.5rem; border-radius: 8px;">
+                        <label for="medical-condition">Specific Medical Condition / Diagnosis</label>
+                        <input type="text" id="medical-condition" placeholder="e.g., Leukemia, Heart Surgery needed">
+
+                        <label for="hospital-name" style="margin-top: 1rem;">Treating Hospital / Clinic</label>
+                        <input type="text" id="hospital-name" placeholder="Name of hospital">
+
+                        <label class="remember-me" style="margin-top: 1rem;">
+                            <input type="checkbox" id="has-documents"> I have medical documents/prescriptions to verify
+                            this condition
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Verification Section -->
+                <div class="form-section">
+                    <h3>Verification Documents</h3>
+                    <p style="font-size: 0.9rem; margin-bottom: 1rem;">To ensure the integrity of our platform, please
+                        upload a valid Government ID.</p>
+                    <div class="form-group">
+                        <label for="gov-id">Upload ID (Aadhar, PAN, Voter ID, etc.)</label>
+                        <input type="file" id="gov-id" accept="image/*,.pdf"
+                            style="padding: 10px; border: 1px dashed var(--primary-color); background: var(--white); display: block; width: 100%; border-radius: 8px;">
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" required> I declare that the information provided is accurate and true.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large" style="width: 100%; margin-top: 1rem;">Save
+                    Profile & Continue to Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple logic to toggle medical fields
+        document.getElementById('assistance-category').addEventListener('change', function () {
+            const medDetails = document.getElementById('medical-details');
+            if (this.value === 'medical') {
+                medDetails.style.display = 'block';
+            } else {
+                medDetails.style.display = 'none';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('onboarding-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Mark profile as complete
+            sessionStorage.setItem('profileCompleted', 'true');
+            alert('Profile completed successfully! Redirecting to your dashboard...');
+            window.location.href = 'dashboard-receiver.html';
+        });
+    </script>
+</body>
+
+</html>

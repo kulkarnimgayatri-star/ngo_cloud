@@ -19,10 +19,21 @@
             <div class="login-header">
                 <a href="index.html" class="login-logo logo">Unity<span>Care</span></a>
                 <h2>Create Account</h2>
-                <p>Join UnityCare and start tracking your impact.</p>
+                <p>Register to join UnityCare.</p>
             </div>
 
             <form id="signup-form" class="login-form">
+                <div class="form-group">
+                    <label for="signup-role">Select Role</label>
+                    <select id="signup-role" class="role-select"
+                        style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1rem; color: var(--text-color); background-color: var(--card-bg); outline: none;"
+                        required>
+                        <option value="Donator" selected>Donator</option>
+                        <option value="Receiver">Receiver</option>
+                        <option value="Worker">Worker</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="signup-name">Full Name</label>
                     <input type="text" id="signup-name" placeholder="John Doe" required>
@@ -45,7 +56,7 @@
             </form>
 
             <div class="login-divider">
-                <span>or sign up with</span>
+                <span>or continue with</span>
             </div>
 
             <div class="social-login">
@@ -56,11 +67,10 @@
             </div>
 
             <p class="login-footer">
-                Already have an account? <a href="login.html">Sign In</a>
+                Already have an account? <a href="login.html">Log In</a>
             </p>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 
