@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | UnityCare NGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-left: 4px solid transparent;
+        }
+
+        .stat-card.green {
+            border-color: #2ecc71;
+        }
+
+        .stat-card.blue {
+            border-color: #3498db;
+        }
+
+        .stat-card.orange {
+            border-color: #e67e22;
+        }
+
+        .stat-card.purple {
+            border-color: #9b59b6;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-color);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+
+        /* Request card */
+        .request-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            border-top: 3px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .request-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .request-card .req-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-card h3 {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .request-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .request-card .requester {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .request-card .req-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .req-actions .btn {
+            padding: 0.35rem 0.9rem;
+            font-size: 0.8rem;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-approved {
+            background: #d1edff;
+            color: #0a58ca;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Unity<span>Care</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">View Public Site</a></li>
+                <li><a href="index.html" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li>
+                    <div class="user-avatar" id="user-avatar-initials"></div>
+                </li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <!-- Welcome Banner -->
+        <section class="dashboard-hero">
+            <div class="container">
+                <div class="dashboard-welcome reveal active">
+                    <h1>Admin Control Centre &mdash; <span id="user-name-display">Admin</span></h1>
+                </div>
+        </section>
+
+        <div class="container">
+
+            <!-- ── STAT CARDS ── -->
+            <div class="admin-stats-grid">
+                <div class="stat-card green">
+                    <span class="stat-icon">💚</span>
+                    <span class="stat-value">0</span>
+                    <span class="stat-label">Total Registered Users</span>
+                </div>
+                <div class="stat-card blue">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-value">₹0</span>
+                    <span class="stat-label">Total Funds Raised</span>
+                </div>
+                <div class="stat-card orange">
+                    <span class="stat-icon">📋</span>
+                    <span class="stat-value">0</span>
+                    <span class="stat-label">Active Receiver Requests</span>
+                </div>
+                <div class="stat-card purple">
+                    <span class="stat-icon">🏘️</span>
+                    <span class="stat-value">0</span>
+                    <span class="stat-label">Community Campaigns</span>
+                </div>
+                <!-- Seed Data Trigger (Admin Only) -->
+                <div class="stat-card"
+                    style="border-style: dashed; cursor: pointer; justify-content: center; align-items: center; background: rgba(46, 204, 113, 0.05);"
+                    onclick="window.seedData()">
+                    <span class="stat-icon">🌱</span>
+                    <span class="stat-label" style="font-weight: 700; color: var(--primary-color);">Seed Initial
+                        Data</span>
+                </div>
+            </div>
+
+            <!-- ── COMMUNITY CAMPAIGNS ── -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <h2>Community Funding Campaigns</h2>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button class="btn btn-primary"
+                            onclick="document.getElementById('create-campaign-modal').style.display='block'">Create New
+                            Campaign</button>
+                        <div class="search-bar">
+                            <span>🔍</span>
+                            <input type="text" id="community-search" placeholder="Search campaigns…"
+                                oninput="filterCards('community-search','community-grid')">
+                        </div>
+                    </div>
+                </div>
+
+                        <!-- ── COMPLETED NEEDS (Admin) ── -->
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <h2>Recently Completed Needs</h2>
+                            </div>
+                            <div class="admin-grid" id="completed-list-admin" style="padding:1rem;">
+                                <div style="grid-column:1/-1; color:var(--text-light);">Loading completed items…</div>
+                            </div>
+                        </div>
+
+                        <!-- ── NOTIFICATIONS (Admin) ── -->
+                        <div class="admin-section">
+                            <div class="admin-section-header">
+                                <h2>Notifications</h2>
+                            </div>
+                            <div class="track-card" style="padding: 1rem;">
+                                <div id="notifications-list">Loading notifications…</div>
+                            </div>
+                        </div>
+                <div class="admin-grid" id="community-grid">
+                    <!-- campaigns will be rendered dynamically from Firestore -->
+                </div><!-- /community-grid -->
+                <p class="no-results" id="community-grid-empty"
+                    style="display:none; color:var(--text-light); text-align:center; padding:2rem 0;">No campaigns match
+                    your search.</p>
+            </div>
+
+            <!-- ── RECEIVER REQUESTS ── -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <h2>Receiver Aid Requests</h2>
+                    <div class="search-bar">
+                        <span>🔍</span>
+                        <input type="text" id="requests-search" placeholder="Search requests or names…"
+                            oninput="filterCards('requests-search','requests-grid')">
+                    </div>
+                </div>
+                <div class="admin-grid" id="requests-grid">
+                    <!-- requests will be rendered dynamically from Firestore -->
+                </div><!-- /requests-grid -->
+            </div>
+
+            <!-- ── FIELD TASK MANAGEMENT ── -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <h2>Field Task Management</h2>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button class="btn btn-primary"
+                            onclick="document.getElementById('create-task-modal').style.display='block'">Assign New
+                            Task</button>
+                        <div class="search-bar">
+                            <span>🔍</span>
+                            <input type="text" id="tasks-search" placeholder="Search tasks or workers…"
+                                oninput="filterCards('tasks-search','tasks-grid')">
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-grid" id="tasks-grid">
+                    <!-- tasks will be rendered dynamically from Firestore -->
+                </div>
+                <p class="no-results" id="tasks-grid-empty"
+                    style="display:none; color:var(--text-light); text-align:center; padding:2rem 0;">No tasks match
+                    your search.</p>
+            </div>
+
+            <!-- ── DONATIONS TRACKING ── -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <h2>Donations Tracking</h2>
+                    <div class="search-bar">
+                        <span>🔍</span>
+                        <input type="text" id="donations-search" placeholder="Search donor or type…"
+                            oninput="filterDonations()">
+                    </div>
+                </div>
+                <div class="track-card" style="padding: 0; overflow-x: auto;">
+                    <table class="admin-table" style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                        <thead>
+                            <tr
+                                style="background: var(--bg-light); text-align: left; border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">Donor Name</th>
+                                <th style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">Email</th>
+                                <th style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">Category</th>
+                                <th style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">Details/Amount
+                                </th>
+                                <th style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">Date</th>
+                                <th style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donations-table-body">
+                            <!-- donations will be rendered here -->
+                        </tbody>
+                    </table>
+                    <p id="donations-empty"
+                        style="display:none; text-align:center; padding: 2rem; color: var(--text-light);">No donation
+                        records found.</p>
+                </div>
+            </div>
+
+
+            <!-- Create Campaign Modal -->
+            <div id="create-campaign-modal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2>Create New Campaign</h2>
+                        <span class="close-modal"
+                            onclick="document.getElementById('create-campaign-modal').style.display='none'">&times;</span>
+                    </div>
+                    <form id="create-campaign-form">
+                        <div class="form-group">
+                            <label for="campaign-title">Campaign Title</label>
+                            <input type="text" id="campaign-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="campaign-category">Category</label>
+                            <select id="campaign-category" required>
+                                <option value="">Select Category</option>
+                                <option value="Medical">Medical</option>
+                                <option value="Education">Education</option>
+                                <option value="Community">Community</option>
+                                <option value="Emergency">Emergency</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="campaign-target">Target Amount (₹)</label>
+                            <input type="number" id="campaign-target" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="campaign-description">Description</label>
+                            <textarea id="campaign-description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="campaign-requirements">Requirements / List of Items</label>
+                            <textarea id="campaign-requirements" rows="2"
+                                placeholder="e.g. 50 Blankets, 100kg Rice..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="campaign-is-community">
+                                <span>Mark as Community Initiative</span>
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="document.getElementById('create-campaign-modal').style.display='none'">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Campaign</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Create Task Modal -->
+            <div id="create-task-modal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2>Assign New Task</h2>
+                        <span class="close-modal"
+                            onclick="document.getElementById('create-task-modal').style.display='none'">&times;</span>
+                    </div>
+                    <form id="create-task-form">
+                        <div class="form-group">
+                            <label for="task-title">Task Title</label>
+                            <input type="text" id="task-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-category">Category</label>
+                            <select id="task-category" required>
+                                <option value="">Select Category</option>
+                                <option value="Medical">Medical</option>
+                                <option value="Education">Education</option>
+                                <option value="Community">Community</option>
+                                <option value="Administrative">Administrative</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority" required>
+                                <option value="normal">Normal</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-location">Location</label>
+                            <input type="text" id="task-location" placeholder="e.g., Mumbai, Maharashtra">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date">Due Date</label>
+                            <input type="date" id="task-due-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-assigned-to">Assign to Worker</label>
+                            <select id="task-assigned-to" required>
+                                <option value="">Select Worker</option>
+                                <!-- Workers will be loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="task-description">Task Description</label>
+                            <textarea id="task-description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="task-requirements">Requirements</label>
+                            <textarea id="task-requirements" rows="2"
+                                placeholder="e.g. Identity Proof, Signed Receipt..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="document.getElementById('create-task-modal').style.display='none'">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Assign Task</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <div class="logo">Unity<span>Care</span></div>
+                <p>A non-profit dedicated to making giving simple and tracking visible.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">How it Works</a></li>
+                    <li><a href="#">Annual Reports</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Stay Updated</h4>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email">
+                    <button type="submit">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script type="module" src="script.js"></script>
+    <script type="module">
+        import { db, auth } from '../backend/firebase-config.js';
+        import {
+            collection, onSnapshot, query, where, orderBy, doc, updateDoc, addDoc, serverTimestamp, getDocs, getDoc
+        } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { seedInitialData } from '../backend/seed-data.js';
+
+        window.seedData = async () => {
+            if (confirm("This will add initial sample data (campaigns & requests) to your Firestore. Continue?")) {
+                await seedInitialData();
+            }
+        };
+
+        onAuthStateChanged(auth, user => {
+            if (!user) return;
+
+            // ── LIVE STAT COUNTS ─────────────────────────────────────
+            onSnapshot(collection(db, 'users'), snap => {
+                const el = document.querySelector('.stat-card.green .stat-value');
+                if (el) el.textContent = snap.size.toLocaleString();
+            });
+
+            onSnapshot(query(collection(db, 'requests'), where('status', '==', 'pending')), snap => {
+                const el = document.querySelector('.stat-card.orange .stat-value');
+                if (el) el.textContent = snap.size.toLocaleString();
+            });
+
+            onSnapshot(collection(db, 'campaigns'), snap => {
+                const countEl = document.querySelector('.stat-card.purple .stat-value');
+                if (countEl) countEl.textContent = snap.size.toLocaleString();
+                let total = 0;
+                snap.forEach(d => { total += (d.data().raised || 0); });
+                const fundsEl = document.querySelector('.stat-card.blue .stat-value');
+                if (fundsEl) fundsEl.textContent = '\u20b9' +
+                    (total >= 100000 ? (total / 100000).toFixed(1) + 'L' :
+                        total >= 1000 ? (total / 1000).toFixed(1) + 'K' : total);
+                renderCampaigns(snap);
+            });
+
+            // ── LIVE DONATIONS (for card history) ───────────────────
+            let allDonations = [];
+            onSnapshot(collection(db, 'donations'), snap => {
+                allDonations = [];
+                snap.forEach(d => allDonations.push({ id: d.id, ...d.data() }));
+                // Trigger re-render of campaigns and requests to update their donor lists
+                // We'll rely on the existing onSnapshot listeners for campaigns/requests to be triggered by standard Firestore behavior 
+                // OR we can manually call render functions if we had them scoped properly.
+                // Since onSnapshot is used for campaigns and requests, they will re-render anyway if data changes, 
+                // but donations change independently. So we'll fetch them once and use them in the renderers.
+            });
+
+            // ── NOTIFICATIONS (Admin) ─────────────────────────────
+            const adminNotifContainer = document.getElementById('notifications-list');
+            if (adminNotifContainer) {
+                const notifQuery = query(collection(db, 'notifications'), where('roles', 'array-contains', 'admin'));
+                onSnapshot(notifQuery, snap => {
+                    adminNotifContainer.innerHTML = '';
+                    if (snap.empty) {
+                        adminNotifContainer.innerHTML = '<p style="color:var(--text-light);">No notifications</p>';
+                        return;
+                    }
+                    const allNotifs = [];
+                    snap.forEach(ns => allNotifs.push(ns.data()));
+                    allNotifs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                    allNotifs.forEach(n => {
+                        const d = document.createElement('div');
+                        d.style.padding = '0.5rem 0';
+                        d.style.borderBottom = '1px solid var(--border-color)';
+                        const when = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleString() : 'Recently';
+                        const targetText = n.targetTitle ? ` to ${n.targetTitle}` : (n.targetType ? ` (${n.targetType})` : '');
+                        d.innerHTML = `<strong>${n.donorName || 'Someone'}</strong> donated ${n.amount || ''}${targetText} <br><small style="color:var(--text-light);">${when}</small>`;
+                        adminNotifContainer.appendChild(d);
+                    });
+                });
+            }
+
+            // ── COMPLETED NEEDS (Admin) ───────────────────────────
+            const completedAdminContainer = document.getElementById('completed-list-admin');
+            if (completedAdminContainer) {
+                const completedData = { campaigns: [], requests: [] };
+                const compCampQ = query(collection(db, 'campaigns'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+                const compReqQ = query(collection(db, 'requests'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+
+                function renderCompletedAdmin() {
+                    const items = [...completedData.campaigns, ...completedData.requests]
+                        .sort((a, b) => (b.completedAt?.seconds || 0) - (a.completedAt?.seconds || 0));
+                    completedAdminContainer.innerHTML = '';
+                    if (items.length === 0) {
+                        completedAdminContainer.innerHTML = '<div style="grid-column:1/-1; color:var(--text-light);">No completed items yet.</div>';
+                        return;
+                    }
+                    items.forEach(item => {
+                        const pct = item.target ? Math.min(100, Math.round(((item.raised || item.receivedAmount || 0) / item.target) * 100)) : 0;
+                        const card = document.createElement('div');
+                        card.className = 'feed-card track-card';
+                        card.innerHTML = `
+                            <div class="feed-content">
+                                <span class="feed-badge">${item.category || 'General'}</span>
+                                <h3>${item.title || item.description || 'Completed'}</h3>
+                                <p class="feed-desc">${item.description || ''}</p>
+                                <div class="progress-bar"><div class="progress" style="width:${pct}%"></div></div>
+                                <div class="track-meta"><span>Target: ${item.target ? '₹' + item.target.toLocaleString() : 'N/A'}</span>
+                                <span>Raised: ₹${(item.raised || item.receivedAmount || 0).toLocaleString()}</span></div>
+                                <div class="feed-footer"><span class="feed-badge" style="background:#2ecc71;color:white">COMPLETED</span></div>
+                            </div>
+                        `;
+                        completedAdminContainer.appendChild(card);
+                    });
+                }
+
+                onSnapshot(compCampQ, snap => {
+                    completedData.campaigns = [];
+                    snap.forEach(s => completedData.campaigns.push({ id: s.id, ...s.data(), type: 'campaigns' }));
+                    renderCompletedAdmin();
+                });
+
+                onSnapshot(compReqQ, snap => {
+                    completedData.requests = [];
+                    snap.forEach(s => completedData.requests.push({ id: s.id, ...s.data(), type: 'requests' }));
+                    renderCompletedAdmin();
+                });
+            }
+
+            // ── RENDER CAMPAIGNS ──────────────────────────────────────
+            function renderCampaigns(snap) {
+                const grid = document.getElementById('community-grid');
+                if (!grid) return;
+                grid.querySelectorAll('[data-firestore]').forEach(el => el.remove());
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const pct = d.target ? Math.min(100, Math.round((d.raised / d.target) * 100)) : 0;
+                    const card = document.createElement('div');
+                    card.className = 'feed-card track-card';
+                    card.setAttribute('data-firestore', 'true');
+                    card.setAttribute('data-search', (d.title + ' ' + d.category + ' ' + d.postedBy).toLowerCase());
+                    // Render action buttons keyed to status (approve if pending)
+                    const actionButton = (d.status === 'pending')
+                        ? '<button class="btn btn-primary btn-sm" style="margin-left:0.75rem" onclick="window.approveCampaign(\'' + docSnap.id + '\')">Approve</button>'
+                        : '<button class="btn btn-primary btn-sm" style="margin-left:0.75rem" onclick="window.toggleCampaignStatus(\'' + docSnap.id + '\')">' + (d.status === 'completed' ? 'Reopen' : 'Mark Complete') + '</button>';
+
+                    const reqsHtml = d.requirements ? '<p class="feed-desc" style="margin-top:0.5rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ' + d.requirements + '</p>' : '';
+                    const communityBadge = d.isCommunity ? '<span class="feed-badge" style="background:#e0f7fa; color:#006064; margin-left:0.5rem;">COMMUNITY</span>' : '';
+
+                    // Goal Reached Badge
+                    const goalReached = d.target && d.raised >= d.target;
+                    const goalBadge = goalReached ? '<span class="feed-badge" style="background:#2ecc71; color:white; margin-left:0.5rem;">GOAL REACHED</span>' : '';
+
+                    // Donation History for this card
+                    const dlist = allDonations.filter(don => don.targetId === docSnap.id)
+                        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    let donorHtml = '';
+                    if (dlist.length > 0) {
+                        donorHtml = '<div style="margin-top:1rem; border-top:1px solid #eee; padding-top:0.5rem;">' +
+                            '<h4 style="font-size:0.8rem; color:var(--text-light); margin-bottom:0.4rem;">Recent Donors:</h4>' +
+                            '<ul style="list-style:none; padding:0; font-size:0.75rem;">' +
+                            dlist.slice(0, 3).map(don => `<li><strong>${don.donorName || 'Someone'}</strong> donated ${don.amount}</li>`).join('') +
+                            '</ul></div>';
+                    }
+
+                    card.innerHTML =
+                        '<div class="feed-content" style="padding:1.25rem">' +
+                        '<span class="feed-badge medical">' + (d.category || 'Campaign') + '</span>' + communityBadge + goalBadge +
+                        '<h3>' + d.title + '</h3>' +
+                        '<p class="feed-desc">' + d.description + '</p>' + reqsHtml +
+                        '<div class="progress-bar"><div class="progress" style="width:' + pct + '%"></div></div>' +
+                        '<div class="track-meta"><span>Target: &#8377;' + (d.target || 0).toLocaleString() + '</span>' +
+                        '<span>Raised: &#8377;' + (d.raised || 0).toLocaleString() + '</span></div>' +
+                        donorHtml +
+                        '<div class="feed-footer"><span class="feed-author">By: ' + (d.postedBy || 'Community') + '</span>' +
+                        '<span class="feed-badge" style="background:#d1edff;color:#0a58ca">' + (d.status || 'active') + '</span>' +
+                        actionButton + '</div></div>';
+                    grid.appendChild(card);
+                });
+                const empty = document.getElementById('community-grid-empty');
+                if (empty) empty.style.display = snap.size === 0 ? 'block' : 'none';
+            }
+
+            // ── RENDER RECEIVER REQUESTS (live) ───────────────────────
+            onSnapshot(collection(db, 'requests'), snap => {
+                const grid = document.getElementById('requests-grid');
+                if (!grid) return;
+                grid.querySelectorAll('[data-firestore]').forEach(el => el.remove());
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const id = docSnap.id;
+                    const pct = (d.target && !isNaN(d.target))
+                        ? Math.min(100, Math.round((d.receivedAmount / d.target) * 100)) : 0;
+                    const isPending = d.status === 'pending';
+                    const dateStr = d.createdAt?.toDate
+                        ? d.createdAt.toDate().toLocaleDateString('en-IN') : 'Recently';
+                    const card = document.createElement('div');
+                    card.className = 'request-card';
+                    card.setAttribute('data-firestore', 'true');
+                    card.setAttribute('data-search', (d.title + ' ' + d.category + ' ' + (d.submitterName || '')).toLowerCase());
+                    const reqsHtml = d.requirements ? '<p style="font-size:0.8rem; margin-top:0.3rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ' + d.requirements + '</p>' : '';
+
+                    // Goal Reached Badge
+                    const goalReached = d.target && !isNaN(d.target) && d.receivedAmount >= d.target;
+                    const goalBadge = goalReached ? '<span class="feed-badge" style="background:#2ecc71; color:white; margin-left:0.5rem;">COMPLETED</span>' : '';
+
+                    // Donation History for this card
+                    const dlist = allDonations.filter(don => don.targetId === id)
+                        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    let donorHtml = '';
+                    if (dlist.length > 0) {
+                        donorHtml = '<div style="margin-top:1rem; border-top:1px solid #eee; padding-top:0.5rem;">' +
+                            '<h4 style="font-size:0.8rem; color:var(--text-light); margin-bottom:0.4rem;">Recent contributions:</h4>' +
+                            '<ul style="list-style:none; padding:0; font-size:0.75rem;">' +
+                            dlist.slice(0, 3).map(don => `<li><strong>${don.donorName || 'Someone'}</strong> donated ${don.amount}</li>`).join('') +
+                            '</ul></div>';
+                    }
+
+                    card.innerHTML =
+                        '<div class="req-meta">' +
+                        '<span class="feed-badge medical">' + d.category + '</span>' +
+                        '<span class="feed-badge ' + (isPending ? 'badge-pending' : 'badge-approved') + '">' +
+                        (isPending ? 'Pending Review' : 'Approved') + '</span>' + goalBadge + '</div>' +
+                        '<h3>' + d.title + '</h3><p>' + d.description + '</p>' + reqsHtml +
+                        '<div class="progress-bar"><div class="progress" style="width:' + pct + '%"></div></div>' +
+                        '<div class="track-meta"><span>Target: ' + (d.target || 'Not Specified') + '</span>' +
+                        '<span>Received: &#8377;' + (d.receivedAmount || 0).toLocaleString() + '</span></div>' +
+                        donorHtml +
+                        '<div class="requester">&#x1F464; <strong>' + (d.submitterName || 'Anonymous') +
+                        '</strong> &nbsp;&middot;&nbsp; ' + dateStr + '</div>' +
+                        '<div class="req-actions">' +
+                        '<button class="btn btn-primary" onclick="window.approveReq(\'' + id + '\')">' +
+                        (isPending ? 'Approve' : 'Mark Complete') + '</button>' +
+                        '<button class="btn btn-secondary">View Details</button></div>';
+                    grid.appendChild(card);
+                });
+                const empty = document.getElementById('requests-grid-empty');
+                if (empty) empty.style.display = snap.size === 0 ? 'block' : 'none';
+            });
+
+            window.approveReq = async function (id) {
+                try {
+                    const snap = await getDoc(doc(db, 'requests', id));
+                    const cur = snap.exists() ? snap.data().status : null;
+                    if (cur === 'pending') {
+                        await updateDoc(doc(db, 'requests', id), { status: 'approved' });
+                        showToast('Request approved successfully!');
+                    } else if (cur === 'approved') {
+                        await updateDoc(doc(db, 'requests', id), { status: 'completed' });
+                        showToast('Request marked as completed.');
+                    } else {
+                        await updateDoc(doc(db, 'requests', id), { status: 'approved' });
+                        showToast('Request status updated.');
+                    }
+                } catch (e) {
+                    showToast('Failed to update request status.', 'error');
+                }
+            };
+
+            window.approveCampaign = async function (id) {
+                try {
+                    const snap = await getDoc(doc(db, 'campaigns', id));
+                    const cur = snap.exists() ? snap.data().status : null;
+                    if (cur === 'pending') {
+                        await updateDoc(doc(db, 'campaigns', id), { status: 'active' });
+                        showToast('Campaign approved and activated.');
+                    } else {
+                        showToast('Campaign is not pending approval.');
+                    }
+                } catch (e) {
+                    showToast('Failed to approve campaign.', 'error');
+                }
+            };
+
+            window.toggleCampaignStatus = async function (id) {
+                try {
+                    const snap = await getDoc(doc(db, 'campaigns', id));
+                    const cur = snap.exists() ? snap.data().status : null;
+                    if (cur === 'completed') {
+                        await updateDoc(doc(db, 'campaigns', id), { status: 'active' });
+                        showToast('Campaign reopened.');
+                    } else {
+                        await updateDoc(doc(db, 'campaigns', id), { status: 'completed' });
+                        showToast('Campaign marked as completed.');
+                    }
+                } catch (e) {
+                    showToast('Failed to update campaign status.', 'error');
+                }
+            };
+
+            // ── CREATE CAMPAIGN FORM ───────────────────────────────
+            const campaignForm = document.getElementById('create-campaign-form');
+            campaignForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('campaign-title').value;
+                const category = document.getElementById('campaign-category').value;
+                const target = parseInt(document.getElementById('campaign-target').value);
+                const description = document.getElementById('campaign-description').value;
+                const requirements = document.getElementById('campaign-requirements').value;
+                const isCommunity = document.getElementById('campaign-is-community').checked;
+
+                try {
+                    await addDoc(collection(db, 'campaigns'), {
+                        title,
+                        category,
+                        target,
+                        description,
+                        requirements,
+                        isCommunity,
+                        raised: 0,
+                        status: 'active',
+                        postedBy: 'Admin',
+                        createdAt: serverTimestamp()
+                    });
+                    showToast('Campaign created successfully!');
+                    campaignForm.reset();
+                    document.getElementById('create-campaign-modal').style.display = 'none';
+                } catch (err) {
+                    console.error("Error creating campaign: ", err);
+                    showToast('Failed to create campaign. Please try again.', 'error');
+                }
+            });
+
+            // ── LOAD WORKERS FOR TASK ASSIGNMENT ───────────────────
+            async function loadWorkers() {
+                const workerSelect = document.getElementById('task-assigned-to');
+                workerSelect.innerHTML = '<option value="">Select Worker</option>';
+
+                const workersSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'worker')));
+                workersSnap.forEach(docSnap => {
+                    const worker = docSnap.data();
+                    const option = document.createElement('option');
+                    option.value = docSnap.id;
+                    option.textContent = worker.name || worker.email;
+                    workerSelect.appendChild(option);
+                });
+            }
+
+            // Load workers when modal opens
+            document.querySelector('[onclick*="create-task-modal"]').addEventListener('click', loadWorkers);
+
+            // ── CREATE TASK FORM ───────────────────────────────────
+            const taskForm = document.getElementById('create-task-form');
+            taskForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('task-title').value;
+                const category = document.getElementById('task-category').value;
+                const priority = document.getElementById('task-priority').value;
+                const location = document.getElementById('task-location').value;
+                const dueDate = document.getElementById('task-due-date').value;
+                const assignedTo = document.getElementById('task-assigned-to').value;
+                const description = document.getElementById('task-description').value;
+                const requirements = document.getElementById('task-requirements').value;
+
+                try {
+                    await addDoc(collection(db, 'tasks'), {
+                        title,
+                        category,
+                        priority,
+                        location,
+                        dueDate,
+                        description,
+                        requirements,
+                        assignedTo,
+                        status: 'pending',
+                        createdAt: serverTimestamp()
+                    });
+                    showToast('Task assigned successfully!');
+                    taskForm.reset();
+                    document.getElementById('create-task-modal').style.display = 'none';
+                } catch (err) {
+                    console.error("Error creating task: ", err);
+                    showToast('Failed to assign task. Please try again.', 'error');
+                }
+            });
+
+            // ── RENDER TASKS ───────────────────────────────────────
+            onSnapshot(collection(db, 'tasks'), snap => {
+                const grid = document.getElementById('tasks-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                if (snap.empty) {
+                    const empty = document.getElementById('tasks-grid-empty');
+                    if (empty) empty.style.display = 'block';
+                } else {
+                    const empty = document.getElementById('tasks-grid-empty');
+                    if (empty) empty.style.display = 'none';
+
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const id = docSnap.id;
+                        const statusClass = d.status === 'completed' ? 'done' : (d.status === 'in-progress' ? 'in-progress' : (d.priority === 'urgent' ? 'urgent' : ''));
+                        const badgeClass = d.status === 'completed' ? 'badge-done' : (d.status === 'in-progress' ? 'badge-progress' : (d.priority === 'urgent' ? 'badge-urgent' : 'badge-scheduled'));
+
+                        const card = document.createElement('div');
+                        card.className = `task-card ${statusClass} reveal active`;
+                        card.setAttribute('data-search', (d.title + ' ' + (d.category || '') + ' ' + (d.description || '')).toLowerCase());
+                        card.innerHTML = `
+                            <div class="task-header">
+                                <h3>${d.title}</h3>
+                                <span class="feed-badge ${badgeClass}">${d.status.toUpperCase()}</span>
+                            </div>
+                            <p>${d.description}</p>
+                            <div class="task-meta">
+                                <span>📍 ${d.location || 'N/A'}</span>
+                                <span>📅 Due: ${d.dueDate || 'N/A'}</span>
+                                <span>🏷️ ${d.category || 'General'}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${d.status === 'completed' ? '100%' : (d.status === 'in-progress' ? '50%' : '10%')};"></div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn btn-primary" onclick="window.updateTaskStatus('${id}', '${d.status === 'completed' ? 'pending' : 'completed'}')">${d.status === 'completed' ? 'Reopen' : 'Mark Complete'}</button>
+                                <button class="btn btn-secondary">View Details</button>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                }
+            });
+        });
+
+        // ── SEARCH ───────────────────────────────────────────────────
+        window.filterCards = function (inputId, gridId) {
+            const q = document.getElementById(inputId).value.toLowerCase().trim();
+            const grid = document.getElementById(gridId);
+            const cards = grid.querySelectorAll('[data-search]');
+            let visible = 0;
+            cards.forEach(card => {
+                const text = card.getAttribute('data-search') + ' ' + card.innerText.toLowerCase();
+                const show = text.includes(q);
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const emptyMsg = document.getElementById(gridId + '-empty');
+            if (emptyMsg) emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+        };
+
+        // ── DONATIONS TABLE TRACKING ──────────────────────────────────
+        onSnapshot(query(collection(db, 'donations'), orderBy('createdAt', 'desc')), snap => {
+            const tbody = document.getElementById('donations-table-body');
+            const empty = document.getElementById('donations-empty');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            if (snap.empty) {
+                empty.style.display = 'block';
+            } else {
+                empty.style.display = 'none';
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const date = d.createdAt?.toDate() ? d.createdAt.toDate().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid var(--border-color)';
+                    tr.setAttribute('data-search', (d.donorName + ' ' + d.type + ' ' + d.email).toLowerCase());
+                    tr.innerHTML = `
+                        <td style="padding: 1rem; font-size: 0.9rem;"><strong>${d.donorName || 'Anonymous'}</strong></td>
+                        <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-light);">${d.email || 'N/A'}</td>
+                        <td style="padding: 1rem;"><span class="feed-badge" style="background:#f0f7ff; color:#0052cc;">${d.type}</span></td>
+                        <td style="padding: 1rem; font-size: 0.9rem; font-weight: 600; color: var(--primary-color);">${d.amount || 'N/A'}</td>
+                        <td style="padding: 1rem; font-size: 0.8rem; color: var(--text-light);">${date}</td>
+                        <td style="padding: 1rem; font-size: 0.8rem; color: var(--text-light); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${d.message || ''}">${d.message || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        });
+
+        window.filterDonations = function () {
+            const q = document.getElementById('donations-search').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#donations-table-body tr');
+            let visible = 0;
+            rows.forEach(row => {
+                const show = row.getAttribute('data-search').includes(q);
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            document.getElementById('donations-empty').style.display = visible === 0 ? 'block' : 'none';
+        };
+
+        window.updateTaskStatus = async function (id, status) {
+            try {
+                await updateDoc(doc(db, 'tasks', id), { status });
+                showToast(`Task updated to ${status}!`);
+            } catch (e) {
+                showToast('Failed to update task status.', 'error');
+            }
+        };
+    </script>
+</body>
+
+
+</html>

@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard | UnityCare NGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        .task-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .task-card.urgent {
+            border-color: #e74c3c;
+        }
+
+        .task-card.in-progress {
+            border-color: #f39c12;
+        }
+
+        .task-card.done {
+            border-color: #27ae60;
+            opacity: 0.75;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .task-card h3 {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .task-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .task-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .task-actions .btn {
+            padding: 0.35rem 0.9rem;
+            font-size: 0.8rem;
+        }
+
+        .badge-urgent {
+            background: #fde8e8;
+            color: #c0392b;
+        }
+
+        .badge-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-done {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-scheduled {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .worker-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .wstat {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .wstat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .wstat .lbl {
+            font-size: 0.82rem;
+            color: var(--text-light);
+            margin-top: 0.2rem;
+        }
+
+        .wstat.green .num {
+            color: #27ae60;
+        }
+
+        .wstat.orange .num {
+            color: #e67e22;
+        }
+
+        .wstat.red .num {
+            color: #e74c3c;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <header class="header">
+        <nav class="nav container">
+            <div class="logo">Unity<span>Care</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">View Public Site</a></li>
+                <li><a href="index.html" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li>
+                    <div class="user-avatar" id="user-avatar-initials"></div>
+                </li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-hero">
+            <div class="container">
+                <div class="dashboard-welcome reveal active">
+                    <h1>Field Worker Hub &mdash; <span id="user-name-display">Worker</span></h1>
+                </div>
+        </section>
+
+        <div class="container">
+
+            <!-- Worker Quick Stats -->
+            <div class="worker-stats">
+                <div class="wstat green">
+                    <div class="num">8</div>
+                    <div class="lbl">Tasks Completed This Month</div>
+                </div>
+                <div class="wstat orange">
+                    <div class="num">3</div>
+                    <div class="lbl">Tasks In Progress</div>
+                </div>
+                <div class="wstat red">
+                    <div class="num">2</div>
+                    <div class="lbl">Urgent / Overdue</div>
+                </div>
+            </div>
+
+            <!-- Assigned Tasks -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <div>
+                        <h2 style="font-size: 1.6rem; margin-bottom: 0.4rem;">Assigned Field Tasks</h2>
+                        <p style="color: var(--text-light); font-size: 0.9rem;">Review your responsibilities and update
+                            their status</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button class="btn btn-primary"
+                            onclick="showToast('Feature coming soon: Offline Report Sync')">Log New Report</button>
+                        <div class="search-bar">
+                            <span>🔍</span>
+                            <input type="text" id="tasks-search" placeholder="Search tasks..."
+                                oninput="window.filterCards('tasks-search','tasks-grid')">
+                        </div>
+                    </div>
+                </div>
+                <div class="tasks-grid admin-grid" id="tasks-grid">
+
+                    <!-- Task 1 -->
+                    <div class="task-card urgent">
+                        <div class="task-header">
+                            <h3>Deliver Medicines — Priya Verma</h3>
+                            <span class="feed-badge badge-urgent">Urgent</span>
+                        </div>
+                        <p>Collect approved medicines from District Hospital and deliver to Priya Verma's address in
+                            Sector
+                            12 by today.</p>
+                        <div class="task-meta">
+                            <span>📍 Sector 12, Delhi</span>
+                            <span>📅 Due: 05 Mar 2026</span>
+                            <span>🏷️ Medical</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 40%;"></div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary">Mark In-Progress</button>
+                            <button class="btn btn-secondary">View Details</button>
+                        </div>
+                    </div>
+
+                    <!-- Task 2 -->
+                    <div class="task-card in-progress">
+                        <div class="task-header">
+                            <h3>School Supply Distribution — Ravi Shankar</h3>
+                            <span class="feed-badge badge-progress">In Progress</span>
+                        </div>
+                        <p>Distribute collected books and stationery kits to 3 children. Confirm receipt with guardian
+                            signature.</p>
+                        <div class="task-meta">
+                            <span>📍 Laxmi Nagar, Delhi</span>
+                            <span>📅 Due: 06 Mar 2026</span>
+                            <span>🏷️ Education</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%;"></div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary">Mark Complete</button>
+                            <button class="btn btn-secondary">Log Update</button>
+                        </div>
+                    </div>
+
+                    <!-- Task 3 -->
+                    <div class="task-card">
+                        <div class="task-header">
+                            <h3>Food Ration Drop-off — Sunita Devi</h3>
+                            <span class="feed-badge badge-scheduled">Scheduled</span>
+                        </div>
+                        <p>Pick up 1 ration kit from the NGO warehouse and deliver to Sunita Devi's family of 6 in
+                            Yamuna
+                            Vihar.</p>
+                        <div class="task-meta">
+                            <span>📍 Yamuna Vihar, Delhi</span>
+                            <span>📅 Due: 07 Mar 2026</span>
+                            <span>🏷️ Food</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 10%;"></div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary">Start Task</button>
+                            <button class="btn btn-secondary">View Details</button>
+                        </div>
+                    </div>
+
+                    <!-- Task 4 -->
+                    <div class="task-card in-progress">
+                        <div class="task-header">
+                            <h3>Shelter Assessment — Mohan Lal</h3>
+                            <span class="feed-badge badge-progress">In Progress</span>
+                        </div>
+                        <p>Visit flood-affected site and assess temporary shelter requirements. Submit photo evidence
+                            and
+                            cost estimate.</p>
+                        <div class="task-meta">
+                            <span>📍 Narela, Delhi</span>
+                            <span>📅 Due: 08 Mar 2026</span>
+                            <span>🏷️ Housing</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 50%;"></div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary">Mark Complete</button>
+                            <button class="btn btn-secondary">Log Update</button>
+                        </div>
+                    </div>
+
+                    <!-- Task 5 -->
+                    <div class="task-card done">
+                        <div class="task-header">
+                            <h3>Cancer Treatment Pickup — Ananya Singh</h3>
+                            <span class="feed-badge badge-done">Completed</span>
+                        </div>
+                        <p>Collected prescribed chemotherapy medicines from AIIMS pharmacy and delivered to patient's
+                            home.
+                        </p>
+                        <div class="task-meta">
+                            <span>📍 Safdarjung, Delhi</span>
+                            <span>📅 Done: 02 Mar 2026</span>
+                            <span>🏷️ Medical</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 100%;"></div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-secondary">View Report</button>
+                        </div>
+                    </div>
+
+                    <!-- Task 6 -->
+                    <div class="task-card done">
+                        <div class="task-header">
+                            <h3>Tuition Fee Deposit — Rahul Kumar</h3>
+                            <span class="feed-badge badge-done">Completed</span>
+                        </div>
+                        <p>Deposited approved tuition fund amount at college cashier and collected official receipt for
+                            records.</p>
+                        <div class="task-meta">
+                            <span>📍 Rohini, Delhi</span>
+                            <span>📅 Done: 28 Feb 2026</span>
+                            <span>🏷️ Education</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 100%;"></div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-secondary">View Report</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Community Campaigns (read-only for workers) -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <div>
+                        <h2>Community Funding Campaigns</h2>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0.2rem;">Browse ongoing
+                            campaigns in your area</p>
+                    </div>
+                    <div style="display:flex; gap:1rem; align-items:center;">
+                        <button class="btn btn-primary"
+                            onclick="document.getElementById('worker-create-campaign-modal').style.display='block'">Create
+                            Campaign</button>
+                        <div class="search-bar">
+                            <span>🔍</span>
+                            <input type="text" id="community-search" placeholder="Search campaigns…"
+                                oninput="window.filterCards('community-search','worker-campaigns-grid')">
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-grid" id="worker-campaigns-grid">
+                    <!-- campaigns rendered here -->
+                </div>
+                <p class="no-results" id="worker-campaigns-grid-empty"
+                    style="display:none; color:var(--text-light); text-align:center; padding:2rem 0;">No campaigns match
+                    your search.</p>
+            </div>
+
+            <!-- ── COMPLETED NEEDS (Worker) ── -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <h2>Recently Completed Needs</h2>
+                </div>
+                <div class="admin-grid" id="completed-list-worker" style="padding:1rem;">
+                    <div style="grid-column:1/-1; color:var(--text-light);">Loading completed items…</div>
+                </div>
+            </div>
+
+            <!-- Worker Create Campaign Modal -->
+            <div id="worker-create-campaign-modal" class="modal" style="display:none;">
+                <div class="modal-content" style="max-width:600px;">
+                    <div class="modal-header">
+                        <h2>Create Campaign (Requires Admin Approval)</h2>
+                        <span class="close-modal"
+                            onclick="document.getElementById('worker-create-campaign-modal').style.display='none'">&times;</span>
+                    </div>
+                    <form id="worker-create-campaign-form">
+                        <div class="form-group">
+                            <label for="w-campaign-title">Campaign Title</label>
+                            <input type="text" id="w-campaign-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="w-campaign-category">Category</label>
+                            <select id="w-campaign-category" required>
+                                <option value="">Select Category</option>
+                                <option value="Medical">Medical</option>
+                                <option value="Education">Education</option>
+                                <option value="Community">Community</option>
+                                <option value="Emergency">Emergency</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="w-campaign-target">Target Amount (₹)</label>
+                            <input type="number" id="w-campaign-target">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="w-campaign-description">Description</label>
+                            <textarea id="w-campaign-description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="w-campaign-requirements">Requirements / List of Items</label>
+                            <textarea id="w-campaign-requirements" rows="2"
+                                placeholder="e.g. 20 Kits, 5 Volunteers..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary"
+                                onclick="document.getElementById('worker-create-campaign-modal').style.display='none'">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Submit for Approval</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Receiver Aid Requests (read-only for workers) -->
+            <div class="admin-section">
+                <div class="admin-section-header">
+                    <div>
+                        <h2>Receiver Aid Requests</h2>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0.2rem;">View requests
+                            submitted by receivers (admin-only actions hidden)</p>
+                    </div>
+                    <div class="search-bar">
+                        <span>🔍</span>
+                        <input type="text" id="requests-search" placeholder="Search requests…"
+                            oninput="window.filterCards('requests-search','worker-requests-grid')">
+                    </div>
+                </div>
+                <div class="admin-grid" id="worker-requests-grid">
+                    <!-- requests rendered here -->
+                </div>
+                <p class="no-results" id="worker-requests-grid-empty"
+                    style="display:none; color:var(--text-light); text-align:center; padding:2rem 0;">No requests match
+                    your search.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-info">
+                <div class="logo">Unity<span>Care</span></div>
+                <p>A non-profit dedicated to making giving simple and tracking visible.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">How it Works</a></li>
+                    <li><a href="#">Annual Reports</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Stay Updated</h4>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email">
+                    <button type="submit">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 UnityCare Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+    <script type="module">
+        import { db, auth } from '../backend/firebase-config.js';
+        import {
+            collection, onSnapshot, query, where, updateDoc, doc, orderBy,
+            addDoc, serverTimestamp, getDoc
+        } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+        const grid = document.querySelector('.tasks-grid');
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.gridColumn = '1 / -1';
+        emptyMsg.style.padding = '3rem';
+        emptyMsg.innerHTML = '<p style="color: var(--text-light);">No tasks assigned to you yet. Great job staying on top of things!</p>';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+
+            // ── LIVE ASSIGNED TASKS ──────────────────────────────────
+            const q = query(collection(db, 'tasks'), where('assignedTo', '==', user.uid));
+            onSnapshot(q, (snap) => {
+                grid.innerHTML = '';
+                let completed = 0, inProgress = 0, urgent = 0;
+
+                if (snap.empty) {
+                    grid.appendChild(emptyMsg);
+                } else {
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const id = docSnap.id;
+
+                        // Count stats
+                        if (d.status === 'completed') completed++;
+                        else if (d.status === 'in-progress') inProgress++;
+                        if (d.priority === 'urgent' && d.status !== 'completed') urgent++;
+
+                        const statusClass = d.status === 'completed' ? 'done' : (d.status === 'in-progress' ? 'in-progress' : (d.priority === 'urgent' ? 'urgent' : ''));
+                        const badgeClass = d.status === 'completed' ? 'badge-done' : (d.status === 'in-progress' ? 'badge-progress' : (d.priority === 'urgent' ? 'badge-urgent' : 'badge-scheduled'));
+                        const buttonText = d.status === 'pending' ? 'Start Task' : (d.status === 'in-progress' ? 'Mark Complete' : 'View Report');
+                        const nextStatus = d.status === 'pending' ? 'in-progress' : (d.status === 'in-progress' ? 'completed' : null);
+
+                        const reqsHtml = d.requirements ? `<p class="feed-desc" style="margin-top:0.5rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ${d.requirements}</p>` : '';
+                        const card = document.createElement('div');
+                        card.className = `task-card ${statusClass} reveal active`;
+                        card.innerHTML = `
+                            <div class="task-header">
+                                <h3>${d.title}</h3>
+                                <span class="feed-badge ${badgeClass}">${d.status.toUpperCase()}</span>
+                            </div>
+                            <p>${d.description}</p>
+                            ${reqsHtml}
+                            <div class="task-meta">
+                                <span>📍 ${d.location || 'N/A'}</span>
+                                <span>📅 Due: ${d.dueDate || 'N/A'}</span>
+                                <span>🏷️ ${d.category || 'General'}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${d.status === 'completed' ? '100%' : (d.status === 'in-progress' ? '50%' : '10%')};"></div>
+                            </div>
+                            <div class="task-actions">
+                                ${nextStatus ? `<button class="btn btn-primary" onclick="window.updateTaskStatus('${id}', '${nextStatus}')">${buttonText}</button>` : `<button class="btn btn-secondary">${buttonText}</button>`}
+                                <button class="btn btn-secondary">View Details</button>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                }
+
+                // Update Stats
+                document.querySelector('.wstat.green .num').textContent = completed;
+                document.querySelector('.wstat.orange .num').textContent = inProgress;
+                document.querySelector('.wstat.red .num').textContent = urgent;
+            });
+
+            // ── LIVE DONATIONS (for card history) ───────────────────
+            let allDonations = [];
+            onSnapshot(collection(db, 'donations'), snap => {
+                allDonations = [];
+                snap.forEach(d => allDonations.push({ id: d.id, ...d.data() }));
+            });
+
+            // ── NOTIFICATIONS (Worker) ─────────────────────────────
+            const workerNotifContainer = document.getElementById('notifications-list-worker');
+            if (workerNotifContainer) {
+                const wq = query(collection(db, 'notifications'), where('roles', 'array-contains', 'worker'));
+                onSnapshot(wq, snap => {
+                    workerNotifContainer.innerHTML = '';
+                    if (snap.empty) {
+                        workerNotifContainer.innerHTML = '<p style="color:var(--text-light);">No notifications</p>';
+                        return;
+                    }
+                    const allNotifs = [];
+                    snap.forEach(ns => allNotifs.push(ns.data()));
+                    allNotifs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                    allNotifs.forEach(n => {
+                        const el = document.createElement('div');
+                        el.style.padding = '0.5rem 0';
+                        el.style.borderBottom = '1px solid var(--border-color)';
+                        const when = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleString() : 'Recently';
+                        const targetText = n.targetTitle ? ` to ${n.targetTitle}` : (n.targetType ? ` (${n.targetType})` : '');
+                        el.innerHTML = `<strong>${n.donorName || 'Someone'}</strong> donated ${n.amount || ''}${targetText} <br><small style="color:var(--text-light);">${when}</small>`;
+                        workerNotifContainer.appendChild(el);
+                    });
+                });
+            }
+
+            // ── COMPLETED NEEDS (Worker) ───────────────────────────
+            const completedWorkerContainer = document.getElementById('completed-list-worker');
+            if (completedWorkerContainer) {
+                const completedData = { campaigns: [], requests: [] };
+                const compCampQ = query(collection(db, 'campaigns'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+                const compReqQ = query(collection(db, 'requests'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+
+                function renderCompletedWorker() {
+                    const items = [...completedData.campaigns, ...completedData.requests]
+                        .sort((a, b) => (b.completedAt?.seconds || 0) - (a.completedAt?.seconds || 0));
+                    completedWorkerContainer.innerHTML = '';
+                    if (items.length === 0) {
+                        completedWorkerContainer.innerHTML = '<div style="grid-column:1/-1; color:var(--text-light);">No completed items yet.</div>';
+                        return;
+                    }
+                    items.forEach(item => {
+                        const pct = item.target ? Math.min(100, Math.round(((item.raised || item.receivedAmount || 0) / item.target) * 100)) : 0;
+                        const card = document.createElement('div');
+                        card.className = 'feed-card track-card';
+                        card.innerHTML = `
+                            <div class="feed-content">
+                                <span class="feed-badge">${item.category || 'General'}</span>
+                                <h3>${item.title || item.description || 'Completed'}</h3>
+                                <p class="feed-desc">${item.description || ''}</p>
+                                <div class="progress-bar"><div class="progress" style="width:${pct}%"></div></div>
+                                <div class="track-meta"><span>Target: ${item.target ? '₹' + item.target.toLocaleString() : 'N/A'}</span>
+                                <span>Raised: ₹${(item.raised || item.receivedAmount || 0).toLocaleString()}</span></div>
+                                <div class="feed-footer"><span class="feed-badge" style="background:#2ecc71;color:white">COMPLETED</span></div>
+                            </div>
+                        `;
+                        completedWorkerContainer.appendChild(card);
+                    });
+                }
+
+                onSnapshot(compCampQ, snap => {
+                    completedData.campaigns = [];
+                    snap.forEach(s => completedData.campaigns.push({ id: s.id, ...s.data(), type: 'campaigns' }));
+                    renderCompletedWorker();
+                });
+
+                onSnapshot(compReqQ, snap => {
+                    completedData.requests = [];
+                    snap.forEach(s => completedData.requests.push({ id: s.id, ...s.data(), type: 'requests' }));
+                    renderCompletedWorker();
+                });
+            }
+
+            window.updateTaskStatus = async (id, status) => {
+                try {
+                    await updateDoc(doc(db, 'tasks', id), { status });
+                    showToast(`Task updated to ${status}!`);
+                } catch (err) {
+                    console.error("Error updating task status:", err);
+                    showToast('Failed to update task. Please try again.', 'error');
+                }
+            };
+
+            // ── RENDER COMMUNITY CAMPAIGNS (read-only for workers) ──
+            const campaignsGrid = document.getElementById('worker-campaigns-grid');
+            onSnapshot(query(collection(db, 'campaigns'), orderBy('createdAt', 'desc')), (snap) => {
+                if (!campaignsGrid) return;
+                campaignsGrid.innerHTML = '';
+                if (snap.empty) {
+                    const msg = document.createElement('div');
+                    msg.style.gridColumn = '1 / -1';
+                    msg.style.textAlign = 'center';
+                    msg.style.color = 'var(--text-light)';
+                    msg.textContent = 'No active campaigns.';
+                    campaignsGrid.appendChild(msg);
+                    return;
+                }
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const target = parseInt(d.target) || 0;
+                    const received = d.raised || 0;
+                    const pct = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+                    const isCommunity = d.isCommunity;
+                    const badgeText = isCommunity ? 'COMMUNITY' : 'CAMPAIGN';
+                    const badgeColor = isCommunity ? 'background:#e0f7fa; color:#006064;' : 'background:#fff3cd; color:#856404;';
+                    const status = d.status || 'pending';
+                    const statusBadgeColor = status === 'active' ? 'background:#d4edda; color:#155724;' : (status === 'completed' ? 'background:#d1edff; color:#0a58ca;' : 'background:#fff3cd; color:#856404;');
+                    const reqsHtml = d.requirements ? `<p class="feed-desc" style="margin-top:0.5rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ${d.requirements}</p>` : '';
+
+                    // Goal reached badge
+                    const goalReached = target > 0 && received >= target;
+                    const goalBadge = goalReached ? `<span class="feed-badge" style="background:#2ecc71; color:white; margin-left:0.5rem;">GOAL REACHED</span>` : '';
+
+                    // Donation History for this card
+                    const dlist = allDonations.filter(don => don.targetId === docSnap.id)
+                        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    let donorHtml = '';
+                    if (dlist.length > 0) {
+                        donorHtml = `<div style="margin-top:1rem; border-top:1px solid #eee; padding-top:0.5rem;">
+                                    <h4 style="font-size:0.8rem; color:var(--text-light); margin-bottom:0.4rem;">Recent Donors:</h4>
+                                    <ul style="list-style:none; padding:0; font-size:0.75rem;">
+                                    ${dlist.slice(0, 3).map(don => `<li><strong>${don.donorName || 'Someone'}</strong> donated ${don.amount}</li>`).join('')}
+                                    </ul></div>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'feed-card track-card reveal active';
+                    card.setAttribute('data-search', (d.title + ' ' + (d.category || '') + ' ' + (d.postedBy || '')).toLowerCase());
+                    card.innerHTML = `
+                        <div class="feed-content">
+                            <span class="feed-badge ${(d.category || '').toLowerCase()}">${d.category || 'Campaign'}</span>
+                            <span class="feed-badge" style="${badgeColor} margin-left:0.5rem;">${badgeText}</span>
+                            <span class="feed-badge" style="${statusBadgeColor} margin-left:0.5rem;">${status.toUpperCase()}</span>
+                            ${goalBadge}
+                            <h3>${d.title}</h3>
+                            <p class="feed-desc">${d.description}</p>
+                            ${reqsHtml}
+                            <div class="progress-bar"><div class="progress" style="width:${pct}%"></div></div>
+                            <div class="track-meta"><span>Target: ${target ? '₹' + target.toLocaleString() : (d.target || 'N/A')}</span>
+                            <span>Raised: ₹${received.toLocaleString()}</span></div>
+                            ${donorHtml}
+                            <div class="feed-footer"><span class="feed-author">By: ${d.postedBy || 'Community'}</span>
+                            <button class="btn btn-secondary btn-sm">View Details</button></div>
+                        </div>`;
+                    campaignsGrid.appendChild(card);
+                });
+                const empty = document.getElementById('worker-campaigns-grid-empty');
+                if (empty) empty.style.display = snap.size === 0 ? 'block' : 'none';
+            });
+
+            // ── RENDER RECEIVER REQUESTS (read-only for workers) ──
+            const requestsGrid = document.getElementById('worker-requests-grid');
+            onSnapshot(query(collection(db, 'requests'), orderBy('createdAt', 'desc')), (snap) => {
+                if (!requestsGrid) return;
+                requestsGrid.innerHTML = '';
+                if (snap.empty) {
+                    const msg = document.createElement('div');
+                    msg.style.gridColumn = '1 / -1';
+                    msg.style.textAlign = 'center';
+                    msg.style.color = 'var(--text-light)';
+                    msg.textContent = 'No receiver requests.';
+                    requestsGrid.appendChild(msg);
+                    return;
+                }
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const target = parseInt(d.target) || 0;
+                    const received = d.receivedAmount || 0;
+                    const pct = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+                    const reqsHtml = d.requirements ? `<p class="feed-desc" style="margin-top:0.5rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ${d.requirements}</p>` : '';
+
+                    // Goal reached badge
+                    const goalReached = target > 0 && received >= target;
+                    const goalBadge = goalReached ? `<span class="feed-badge" style="background:#2ecc71; color:white; margin-left:0.5rem;">COMPLETED</span>` : '';
+
+                    // Donation History for this card
+                    const dlist = allDonations.filter(don => don.targetId === docSnap.id)
+                        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    let donorHtml = '';
+                    if (dlist.length > 0) {
+                        donorHtml = `<div style="margin-top:1rem; border-top:1px solid #eee; padding-top:0.5rem;">
+                                    <h4 style="font-size:0.8rem; color:var(--text-light); margin-bottom:0.4rem;">Recent contributions:</h4>
+                                    <ul style="list-style:none; padding:0; font-size:0.75rem;">
+                                    ${dlist.slice(0, 3).map(don => `<li><strong>${don.donorName || 'Someone'}</strong> donated ${don.amount}</li>`).join('')}
+                                    </ul></div>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'feed-card track-card reveal active';
+                    card.setAttribute('data-search', (d.title + ' ' + (d.category || '') + ' ' + (d.submitterName || '')).toLowerCase());
+                    card.innerHTML = `
+                        <div class="feed-content">
+                            <span class="feed-badge ${(d.category || '').toLowerCase()}">${d.category || 'Request'}</span>
+                            <span class="feed-badge" style="background:#d1edff; color:#0a58ca; margin-left:0.5rem;">REQUEST</span>
+                            ${goalBadge}
+                            <h3>${d.title}</h3>
+                            <p class="feed-desc">${d.description}</p>
+                            ${reqsHtml}
+                            <div class="progress-bar"><div class="progress" style="width:${pct}%"></div></div>
+                            <div class="track-meta"><span>Target: ${d.target || 'Not Specified'}</span>
+                            <span>Received: ₹${received.toLocaleString()}</span></div>
+                            ${donorHtml}
+                            <div class="feed-footer"><span class="feed-author">By: ${d.submitterName || 'Anonymous'}</span>
+                            <span class="feed-badge" style="background:#f0f0f0;color:#333; margin-left:0.75rem;">${d.status || 'pending'}</span>
+                            <button class="btn btn-secondary btn-sm">View Details</button></div>
+                        </div>`;
+                    requestsGrid.appendChild(card);
+                });
+                const empty = document.getElementById('worker-requests-grid-empty');
+                if (empty) empty.style.display = snap.size === 0 ? 'block' : 'none';
+            });
+        });
+
+        // ── WORKER: CREATE CAMPAIGN (submits as pending for admin approval) ──
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+            const form = document.getElementById('worker-create-campaign-form');
+            if (!form) return;
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('w-campaign-title').value;
+                const category = document.getElementById('w-campaign-category').value;
+                const target = parseInt(document.getElementById('w-campaign-target').value) || 0;
+                const description = document.getElementById('w-campaign-description').value;
+                const requirements = document.getElementById('w-campaign-requirements').value;
+
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const postedBy = userDoc.exists() ? userDoc.data().name : 'Worker';
+                    await addDoc(collection(db, 'campaigns'), {
+                        title,
+                        category,
+                        target,
+                        description,
+                        requirements,
+                        isCommunity: false, // Worker-created are campaigns, not core communities
+                        raised: 0,
+                        status: 'pending',
+                        postedBy,
+                        postedByUid: user.uid,
+                        createdAt: serverTimestamp()
+                    });
+                    showToast('Campaign submitted for approval. Admin will review shortly.');
+                    form.reset();
+                    document.getElementById('worker-create-campaign-modal').style.display = 'none';
+                } catch (err) {
+                    console.error('Error submitting campaign:', err);
+                    showToast('Failed to submit campaign. Please try again.', 'error');
+                }
+            });
+        });
+
+        // ── SEARCH ───────────────────────────────────────────────────
+        window.filterCards = function (inputId, gridId) {
+            const q = document.getElementById(inputId).value.toLowerCase().trim();
+            const grid = document.getElementById(gridId);
+            const cards = grid.querySelectorAll('[data-search]');
+            let visible = 0;
+            cards.forEach(card => {
+                const text = card.getAttribute('data-search') + ' ' + card.innerText.toLowerCase();
+                const show = text.includes(q);
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const emptyMsg = document.getElementById(gridId + '-empty');
+            if (emptyMsg) emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+        };
+    </script>
+</body>
+
+</html>

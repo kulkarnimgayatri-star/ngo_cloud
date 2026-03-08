@@ -77,15 +77,16 @@
                     <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" placeholder="+91 9876543210" required>
+                            <input type="tel" id="phone" name="phone" placeholder="+91 9876543210" required>
                         </div>
                         <div class="form-group">
                             <label for="dob">Date of Birth</label>
-                            <input type="date" id="dob" required>
+                            <input type="date" id="dob" name="dob" required>
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
                             <label for="address">Current Address</label>
-                            <textarea id="address" rows="2" placeholder="Street, City, State, ZIP" required></textarea>
+                            <textarea id="address" name="address" rows="2" placeholder="Street, City, State, ZIP"
+                                required></textarea>
                         </div>
                     </div>
                 </div>
@@ -95,7 +96,7 @@
                     <h3>Primary Need Category</h3>
                     <div class="form-group">
                         <label>What type of assistance do you primarily need?</label>
-                        <select id="assistance-category" required>
+                        <select id="assistance-category" name="need-category" required>
                             <option value="" disabled selected>Select category...</option>
                             <option value="medical">Medical / Healthcare</option>
                             <option value="education">Education / Scholarship</option>
@@ -110,13 +111,15 @@
                     <div id="medical-details" class="form-group"
                         style="display: none; margin-top: 1.5rem; background: var(--white); padding: 1.5rem; border-radius: 8px;">
                         <label for="medical-condition">Specific Medical Condition / Diagnosis</label>
-                        <input type="text" id="medical-condition" placeholder="e.g., Leukemia, Heart Surgery needed">
+                        <input type="text" id="medical-condition" name="medical-condition"
+                            placeholder="e.g., Leukemia, Heart Surgery needed">
 
                         <label for="hospital-name" style="margin-top: 1rem;">Treating Hospital / Clinic</label>
-                        <input type="text" id="hospital-name" placeholder="Name of hospital">
+                        <input type="text" id="hospital-name" name="hospital-name" placeholder="Name of hospital">
 
                         <label class="remember-me" style="margin-top: 1rem;">
-                            <input type="checkbox" id="has-documents"> I have medical documents/prescriptions to verify
+                            <input type="checkbox" id="has-documents" name="has-documents"> I have medical
+                            documents/prescriptions to verify
                             this condition
                         </label>
                     </div>
@@ -146,25 +149,16 @@
         </div>
     </div>
 
-    <script>
-        // Simple logic to toggle medical fields
-        document.getElementById('assistance-category').addEventListener('change', function () {
-            const medDetails = document.getElementById('medical-details');
-            if (this.value === 'medical') {
-                medDetails.style.display = 'block';
-            } else {
-                medDetails.style.display = 'none';
-            }
-        });
-
-        // Handle form submission
-        document.getElementById('onboarding-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            // Mark profile as complete
-            sessionStorage.setItem('profileCompleted', 'true');
-            alert('Profile completed successfully! Redirecting to your dashboard...');
-            window.location.href = 'dashboard-receiver.html';
-        });
+    <script type="module" src="script.js"></script>
+    <script type="module">
+        // Basic page logic only (toggling fields)
+        const categorySelect = document.getElementById('assistance-category');
+        const medDetails = document.getElementById('medical-details');
+        if (categorySelect && medDetails) {
+            categorySelect.addEventListener('change', () => {
+                medDetails.style.display = categorySelect.value === 'medical' ? 'block' : 'none';
+            });
+        }
     </script>
 </body>
 

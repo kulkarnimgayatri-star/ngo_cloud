@@ -19,7 +19,7 @@
             <div class="logo">Unity<span>Care</span></div>
             <ul class="nav-links">
                 <li><a href="index.html">View Public Site</a></li>
-                <li><a href="#" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li><a href="index.html" class="nav-link-auth" id="logout-btn">Logout</a></li>
                 <li>
                     <div class="user-avatar" id="user-avatar-initials"></div>
                 </li>
@@ -43,6 +43,17 @@
         <div class="container dashboard-layout">
             <!-- Left Column: Community Feed -->
             <div class="layout-left">
+                <!-- Recently Completed Needs -->
+                <section id="completed-feed" class="completed-feed-section reveal active" style="margin-bottom:1.5rem;">
+                    <div class="section-title" style="margin-bottom: 1rem;">
+                        <h2 style="font-size: 1.25rem;">Recently Completed Needs</h2>
+                        <p style="color:var(--text-light); margin:0;">Completed campaigns and requests — updated in real-time.</p>
+                    </div>
+                    <div id="completed-feed-list" class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                        <div style="grid-column:1/-1; color:var(--text-light);">Loading completed items…</div>
+                    </div>
+                </section>
+
                 <section id="community-feed" class="community-feed-section reveal active">
                     <div class="section-title" style="margin-bottom: 2rem;">
                         <h2 style="font-size: 2rem;">Community Funding Needs</h2>
@@ -160,6 +171,11 @@
                     </div>
                 </section>
 
+                <section class="track-card" style="margin-top: 1rem;">
+                    <h3 style="margin:0 0 0.5rem 0;">Notifications</h3>
+                    <div id="notifications-list-donator" style="color:var(--text-light);">Loading notifications…</div>
+                </section>
+
                 <section class="user-impact reveal active" style="margin-top: 0;">
                     <div class="section-title" style="margin-bottom: 2rem;">
                         <h2 style="font-size: 1.5rem;">Your Impact Journey</h2>
@@ -231,6 +247,16 @@
                     <p>Select your category and help us make an impact.</p>
                 </div>
                 <form id="donation-form" class="main-donation-form">
+                    <!-- Hidden tracking fields -->
+                    <input type="hidden" id="target-id" name="target-id">
+                    <input type="hidden" id="target-type" name="target-type">
+
+                    <div id="donation-context-banner"
+                        style="display: none; background: var(--bg-light); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary-color);">
+                        <p style="font-size: 0.85rem; margin: 0; color: var(--text-light);">Contributing to:</p>
+                        <h4 id="target-title-display" style="margin: 0.2rem 0 0; font-size: 1rem;">Campaign Name</h4>
+                    </div>
+
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="fullname">Full Name</label>
@@ -378,7 +404,240 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
+    <script type="module">
+        import { db, auth } from '../backend/firebase-config.js';
+        import {
+            collection, onSnapshot, query, where, orderBy
+        } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+        const grid = document.querySelector('.dashboard-grid');
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.gridColumn = '1 / -1';
+        emptyMsg.style.padding = '3rem';
+        emptyMsg.innerHTML = '<p style="color: var(--text-light);">No active funding needs at the moment. Check back later!</p>';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+
+            // ── LIVE COMMUNITY FEED ──────────────────────────────────
+            // Show approved requests and all campaigns
+            const reqQuery = query(collection(db, 'requests'), where('status', '==', 'approved'));
+            onSnapshot(reqQuery, (snap) => {
+                // We'll merge requests and campaigns in the feed
+                updateFeed(snap, 'requests');
+            });
+
+            onSnapshot(collection(db, 'campaigns'), (snap) => {
+                updateFeed(snap, 'campaigns');
+            });
+
+            // ── LIVE DONATIONS (for card history) ───────────────────
+            let allDonations = [];
+            onSnapshot(collection(db, 'donations'), snap => {
+                allDonations = [];
+                snap.forEach(d => allDonations.push({ id: d.id, ...d.data() }));
+                // The updates to cards will happen when the feed re-renders 
+                // or we can force a re-render by calling updateFeed with last data
+            });
+
+            const feedData = { requests: [], campaigns: [] };
+            function updateFeed(snap, type) {
+                feedData[type] = [];
+                snap.forEach(docSnap => feedData[type].push({ id: docSnap.id, ...docSnap.data(), type }));
+
+                const allItems = [...feedData.requests, ...feedData.campaigns]
+                    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                grid.innerHTML = '';
+                if (allItems.length === 0) {
+                    grid.appendChild(emptyMsg);
+                } else {
+                    allItems.forEach(item => {
+                        const target = parseInt(item.target) || 0;
+                        const received = item.receivedAmount || item.raised || 0;
+                        const pct = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+
+                        const isCommunity = item.type === 'campaigns' && item.isCommunity;
+                        const badgeText = isCommunity ? 'COMMUNITY' : (item.type === 'campaigns' ? 'CAMPAIGN' : 'REQUEST');
+                        const badgeColor = isCommunity ? 'background:#e0f7fa; color:#006064;' : (item.type === 'campaigns' ? 'background:#fff3cd; color:#856404;' : 'background:#d1edff; color:#0a58ca;');
+                        const reqsHtml = item.requirements ? `<p class="feed-desc" style="margin-top:0.5rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ${item.requirements}</p>` : '';
+
+                        const card = document.createElement('div');
+                        card.className = 'feed-card track-card reveal active';
+                        card.innerHTML = `
+                            <div class="feed-content">
+                                <span class="feed-badge ${item.category?.toLowerCase() || 'community'}">${item.category || 'General'}</span>
+                                 <span class="feed-badge" style="${badgeColor} margin-left:0.5rem;">${badgeText}</span>
+                                 ${pct >= 100 ? '<span class="feed-badge" style="background:#2ecc71; color:white; margin-left:0.5rem;">GOAL REACHED</span>' : ''}
+                                 <h3>${item.title}</h3>
+                                 <p class="feed-desc">${item.description}</p>
+                                 ${reqsHtml}
+                                 <div class="progress-bar">
+                                     <div class="progress" style="width: ${pct}%;"></div>
+                                 </div>
+                                 <div class="track-meta">
+                                     <span>Target: ${target > 0 ? '₹' + target.toLocaleString() : (item.target || 'N/A')}</span>
+                                     <span>${item.type === 'campaigns' ? 'Raised' : 'Received'}: ₹${received.toLocaleString()}</span>
+                                 </div>
+                                 <div id="donors-${item.id}" class="card-donors-list" style="margin-top:1rem; border-top:1px solid #eee; padding-top:0.5rem;">
+                                     <h4 style="font-size:0.8rem; color:var(--text-light); margin-bottom:0.4rem;">Recent contributions:</h4>
+                                     <ul style="list-style:none; padding:0; font-size:0.75rem;">
+                                         ${allDonations.filter(don => don.targetId === item.id)
+                                .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+                                .slice(0, 3)
+                                .map(don => `<li><strong>${don.donorName || 'Someone'}</strong> donated ${don.amount}</li>`)
+                                .join('') || '<li style="color:var(--text-light); font-style:italic;">No donations yet</li>'}
+                                     </ul>
+                                 </div>
+                                <div class="feed-footer">
+                                    <span class="feed-author">By: ${item.submitterName || item.postedBy || 'Community'}</span>
+                                    <button class="btn btn-primary btn-sm" onclick="window.openDonationModal('${item.id}', '${item.type}', '${item.title.replace(/'/g, "\\'")}')">Donate Now</button>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                }
+            }
+
+            window.openDonationModal = (id, type, title) => {
+                const modal = document.getElementById('donation-modal');
+                const idInput = document.getElementById('target-id');
+                const typeInput = document.getElementById('target-type');
+                const titleDisp = document.getElementById('target-title-display');
+                const banner = document.getElementById('donation-context-banner');
+
+                if (idInput) idInput.value = id || '';
+                if (typeInput) typeInput.value = type || '';
+                if (titleDisp) titleDisp.textContent = title || '';
+                if (banner) banner.style.display = id ? 'block' : 'none';
+
+                if (modal) modal.style.display = 'block';
+            };
+
+            // ── LIVE IMPACT JOURNEY ──────────────────────────────────
+            const donationQuery = query(
+                collection(db, 'donations'),
+                where('donorUid', '==', user.uid)
+            );
+            onSnapshot(donationQuery, (snap) => {
+                const historyList = document.querySelector('.donation-history');
+                const pointsValue = document.querySelector('.points-circle span');
+
+                if (historyList) {
+                    historyList.innerHTML = '';
+                    if (snap.empty) {
+                        historyList.innerHTML = '<li><span>No donations yet</span></li>';
+                    } else {
+                        const allDonations = [];
+                        snap.forEach(docSnap => allDonations.push(docSnap.data()));
+
+                        allDonations.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                        allDonations.forEach(d => {
+                            const date = d.createdAt?.toDate()?.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) || 'Recently';
+                            const li = document.createElement('li');
+                            li.innerHTML = `<span>${d.type} (${d.amount})</span> <span>${date}</span>`;
+                            historyList.appendChild(li);
+                        });
+                    }
+                }
+
+                if (pointsValue) {
+                    // Simple logic: 10 points per donation + 1 point per 100 rupees donated
+                    let points = snap.size * 10;
+                    snap.forEach(docSnap => {
+                        const amtLine = docSnap.data().amount || "";
+                        const amtMatch = amtLine.match(/₹([\d,]+)/);
+                        if (amtMatch) {
+                            const val = parseInt(amtMatch[1].replace(/,/g, ''));
+                            points += Math.floor(val / 100);
+                        }
+                    });
+
+                        // ── COMPLETED NEEDS (Donator) ────────────────────────────
+                        const completedListEl = document.getElementById('completed-feed-list');
+                        if (completedListEl) {
+                            const completedData = { campaigns: [], requests: [] };
+                            const compCampQ = query(collection(db, 'campaigns'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+                            const compReqQ = query(collection(db, 'requests'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+
+                            function renderCompleted() {
+                                const items = [...completedData.campaigns, ...completedData.requests]
+                                    .sort((a, b) => (b.completedAt?.seconds || 0) - (a.completedAt?.seconds || 0));
+                                completedListEl.innerHTML = '';
+                                if (items.length === 0) {
+                                    completedListEl.innerHTML = '<div style="grid-column:1/-1; color:var(--text-light);">No completed items yet.</div>';
+                                    return;
+                                }
+                                items.forEach(item => {
+                                    const target = parseInt(item.target) || 0;
+                                    const received = item.receivedAmount || item.raised || 0;
+                                    const pct = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+                                    const card = document.createElement('div');
+                                    card.className = 'feed-card track-card';
+                                    card.innerHTML = `
+                                        <div class="feed-content">
+                                            <span class="feed-badge">${item.category || 'General'}</span>
+                                            <h3>${item.title || item.description || 'Completed'}</h3>
+                                            <p class="feed-desc">${item.description || ''}</p>
+                                            <div class="progress-bar"><div class="progress" style="width:${pct}%"></div></div>
+                                            <div class="track-meta"><span>Target: ${target ? '₹' + target.toLocaleString() : 'N/A'}</span>
+                                            <span>Received: ₹${received.toLocaleString()}</span></div>
+                                            <div class="feed-footer"><span class="feed-badge" style="background:#2ecc71;color:white">COMPLETED</span>
+                                            <button class="btn btn-secondary btn-sm" onclick="window.openDonationModal('${item.id}', '${item.type || (item.postedBy ? 'campaigns' : 'requests')}','${(item.title || '').replace(/'/g, "\\'")}')">View Details</button></div>
+                                        </div>
+                                    `;
+                                    completedListEl.appendChild(card);
+                                });
+                            }
+
+                            onSnapshot(compCampQ, snap => {
+                                completedData.campaigns = [];
+                                snap.forEach(s => completedData.campaigns.push({ id: s.id, ...s.data(), type: 'campaigns' }));
+                                renderCompleted();
+                            });
+
+                            onSnapshot(compReqQ, snap => {
+                                completedData.requests = [];
+                                snap.forEach(s => completedData.requests.push({ id: s.id, ...s.data(), type: 'requests' }));
+                                renderCompleted();
+                            });
+                        }
+                    pointsValue.textContent = points;
+                }
+            });
+
+            // ── NOTIFICATIONS (Donator) ─────────────────────────────
+            const donNotifContainer = document.getElementById('notifications-list-donator');
+            if (donNotifContainer) {
+                const dnq = query(collection(db, 'notifications'), where('roles', 'array-contains', 'donator'));
+                onSnapshot(dnq, snap => {
+                    donNotifContainer.innerHTML = '';
+                    if (snap.empty) {
+                        donNotifContainer.innerHTML = '<p style="color:var(--text-light);">No notifications</p>';
+                        return;
+                    }
+                    const allNotifs = [];
+                    snap.forEach(ns => allNotifs.push(ns.data()));
+                    allNotifs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                    allNotifs.forEach(n => {
+                        const el = document.createElement('div');
+                        el.style.padding = '0.4rem 0';
+                        el.style.borderBottom = '1px solid var(--border-color)';
+                        const when = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleString() : 'Recently';
+                        const targetText = n.targetTitle ? ` to ${n.targetTitle}` : (n.targetType ? ` (${n.targetType})` : '');
+                        el.innerHTML = `<strong>${n.donorName || 'You'}</strong> donated ${n.amount || ''}${targetText} <br><small style="color:var(--text-light);">${when}</small>`;
+                        donNotifContainer.appendChild(el);
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

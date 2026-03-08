@@ -19,7 +19,7 @@
             <div class="logo">Unity<span>Care</span></div>
             <ul class="nav-links">
                 <li><a href="index.html">View Public Site</a></li>
-                <li><a href="#" class="nav-link-auth" id="logout-btn">Logout</a></li>
+                <li><a href="index.html" class="nav-link-auth" id="logout-btn">Logout</a></li>
                 <li>
                     <div class="user-avatar" id="user-avatar-initials"></div>
                 </li>
@@ -178,9 +178,14 @@
                         </div>
                         <div class="form-group full-width">
                             <label for="req-desc">Detailed Description</label>
-                            <textarea id="req-desc" name="req-desc" rows="4"
+                            <textarea id="req-desc" name="req-desc" rows="3"
                                 placeholder="Explain your situation, why you need help, and how the funds/items will be used..."
                                 required></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="req-requirements">Specific Requirements / Items Needed</label>
+                            <textarea id="req-requirements" name="req-requirements" rows="2"
+                                placeholder="e.g. List of medicines, specific course books, etc."></textarea>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-large" style="margin-top: 1rem;">Publish
@@ -219,26 +224,119 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
-    <script>
-        // Inline close handlers for receiver request modal
-        document.querySelector('.close-modal').addEventListener('click', function () {
+    <script type="module" src="script.js"></script>
+    <script type="module">
+        import { db, auth } from '../backend/firebase-config.js';
+        import {
+            collection, onSnapshot, query, where, addDoc, serverTimestamp, getDoc, doc
+        } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+        const grid = document.querySelector('.dashboard-grid');
+        const emptyMsg = document.createElement('div');
+        emptyMsg.id = 'empty-requests-msg';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.gridColumn = '1 / -1';
+        emptyMsg.style.padding = '3rem';
+        emptyMsg.innerHTML = '<p style="color: var(--text-light);">You haven\'t created any requests yet. Click "Create a Post" to get started!</p>';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+
+            // ── LIVE USER REQUESTS ───────────────────────────────────
+            const q = query(collection(db, 'requests'), where('submittedBy', '==', user.uid));
+            onSnapshot(q, (snap) => {
+                grid.innerHTML = '';
+                if (snap.empty) {
+                    grid.appendChild(emptyMsg);
+                } else {
+                    let totalReceived = 0;
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data();
+                        totalReceived += (d.receivedAmount || 0);
+                        const pct = d.target && !isNaN(parseInt(d.target))
+                            ? Math.min(100, Math.round((d.receivedAmount / parseInt(d.target)) * 100))
+                            : 0;
+
+                        const reqsHtml = d.requirements ? `<p class="feed-desc" style="margin-top:0.5rem; font-style:italic; color:var(--primary-color);"><strong>Requirements:</strong> ${d.requirements}</p>` : '';
+                        const card = document.createElement('div');
+                        card.className = 'feed-card track-card reveal active';
+                        card.innerHTML = `
+                            <div class="feed-content">
+                                <span class="feed-badge ${d.category.toLowerCase()}">${d.category}</span>
+                                <h3>${d.title}</h3>
+                                <p class="feed-desc">${d.description}</p>
+                                ${reqsHtml}
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: ${pct}%;"></div>
+                                </div>
+                                <div class="track-meta">
+                                    <span>Target: ${d.target || 'N/A'}</span>
+                                    <span>Received: ₹${(d.receivedAmount || 0).toLocaleString()}</span>
+                                </div>
+                                <div class="feed-footer">
+                                    <span class="feed-author" style="color: var(--primary-color);">Status: ${d.status}</span>
+                                    <button class="btn btn-secondary btn-sm">Update Post</button>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    // Update Total Funds Received Stat
+                    const totalEl = document.querySelector('.points-circle span');
+                    if (totalEl) {
+                        totalEl.textContent = '₹' + (totalReceived >= 1000 ? (totalReceived / 1000).toFixed(1) + 'k' : totalReceived);
+                    }
+                }
+            });
+
+            // ── REQUEST FORM SUBMISSION ──────────────────────────────
+            const reqForm = document.getElementById('request-form');
+            const modal = document.getElementById('donation-modal');
+
+            reqForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('req-title').value;
+                const category = document.getElementById('req-category').value;
+                const target = document.getElementById('req-target').value;
+                const description = document.getElementById('req-desc').value;
+                const requirements = document.getElementById('req-requirements').value;
+
+                // Get current user name for the request
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userName = userDoc.exists() ? userDoc.data().name : 'Anonymous';
+
+                try {
+                    await addDoc(collection(db, 'requests'), {
+                        title,
+                        category,
+                        target,
+                        description,
+                        requirements,
+                        submittedBy: user.uid,
+                        submitterName: userName,
+                        receivedAmount: 0,
+                        status: 'pending',
+                        createdAt: serverTimestamp()
+                    });
+                    showToast('Request submitted successfully! It is now pending review.');
+                    reqForm.reset();
+                    modal.style.display = 'none';
+                } catch (err) {
+                    console.error("Error adding request: ", err);
+                    showToast('Failed to submit request. Please try again.', 'error');
+                }
+            });
+        });
+
+        // Modal Close Handlers
+        document.querySelector('.close-modal').addEventListener('click', () => {
             document.getElementById('donation-modal').style.display = 'none';
         });
-        window.addEventListener('click', function (e) {
+        window.addEventListener('click', (e) => {
             const modal = document.getElementById('donation-modal');
             if (e.target === modal) modal.style.display = 'none';
-        });
-        document.getElementById('request-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const title = document.getElementById('req-title').value;
-            const category = document.getElementById('req-category').value;
-            const target = document.getElementById('req-target').value;
-            if (title && category && target) {
-                alert('Your request "' + title + '" for ' + target + ' has been submitted for review! Once approved by an Admin, it will be visible to Donators.');
-                this.reset();
-                document.getElementById('donation-modal').style.display = 'none';
-            }
         });
     </script>
 </body>
