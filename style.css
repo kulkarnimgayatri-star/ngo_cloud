@@ -1552,3 +1552,43 @@ h3,
         grid-template-columns: 1fr;
     }
 }
+/* Card Donors List */
+.card-donors-list {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.card-donors-list h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.6rem;
+}
+
+.card-donors-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.card-donors-list li {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    padding: 0.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-donors-list li strong {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.card-donors-list .no-donations {
+    font-style: italic;
+    color: var(--text-light);
+    font-size: 0.8rem;
+}

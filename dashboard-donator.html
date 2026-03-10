@@ -43,16 +43,6 @@
         <div class="container dashboard-layout">
             <!-- Left Column: Community Feed -->
             <div class="layout-left">
-                <!-- Recently Completed Needs -->
-                <section id="completed-feed" class="completed-feed-section reveal active" style="margin-bottom:1.5rem;">
-                    <div class="section-title" style="margin-bottom: 1rem;">
-                        <h2 style="font-size: 1.25rem;">Recently Completed Needs</h2>
-                        <p style="color:var(--text-light); margin:0;">Completed campaigns and requests — updated in real-time.</p>
-                    </div>
-                    <div id="completed-feed-list" class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                        <div style="grid-column:1/-1; color:var(--text-light);">Loading completed items…</div>
-                    </div>
-                </section>
 
                 <section id="community-feed" class="community-feed-section reveal active">
                     <div class="section-title" style="margin-bottom: 2rem;">
@@ -558,28 +548,28 @@
                         }
                     });
 
-                        // ── COMPLETED NEEDS (Donator) ────────────────────────────
-                        const completedListEl = document.getElementById('completed-feed-list');
-                        if (completedListEl) {
-                            const completedData = { campaigns: [], requests: [] };
-                            const compCampQ = query(collection(db, 'campaigns'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
-                            const compReqQ = query(collection(db, 'requests'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+                    // ── COMPLETED NEEDS (Donator) ────────────────────────────
+                    const completedListEl = document.getElementById('completed-feed-list');
+                    if (completedListEl) {
+                        const completedData = { campaigns: [], requests: [] };
+                        const compCampQ = query(collection(db, 'campaigns'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
+                        const compReqQ = query(collection(db, 'requests'), where('status', '==', 'completed'), orderBy('completedAt', 'desc'));
 
-                            function renderCompleted() {
-                                const items = [...completedData.campaigns, ...completedData.requests]
-                                    .sort((a, b) => (b.completedAt?.seconds || 0) - (a.completedAt?.seconds || 0));
-                                completedListEl.innerHTML = '';
-                                if (items.length === 0) {
-                                    completedListEl.innerHTML = '<div style="grid-column:1/-1; color:var(--text-light);">No completed items yet.</div>';
-                                    return;
-                                }
-                                items.forEach(item => {
-                                    const target = parseInt(item.target) || 0;
-                                    const received = item.receivedAmount || item.raised || 0;
-                                    const pct = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
-                                    const card = document.createElement('div');
-                                    card.className = 'feed-card track-card';
-                                    card.innerHTML = `
+                        function renderCompleted() {
+                            const items = [...completedData.campaigns, ...completedData.requests]
+                                .sort((a, b) => (b.completedAt?.seconds || 0) - (a.completedAt?.seconds || 0));
+                            completedListEl.innerHTML = '';
+                            if (items.length === 0) {
+                                completedListEl.innerHTML = '<div style="grid-column:1/-1; color:var(--text-light);">No completed items yet.</div>';
+                                return;
+                            }
+                            items.forEach(item => {
+                                const target = parseInt(item.target) || 0;
+                                const received = item.receivedAmount || item.raised || 0;
+                                const pct = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+                                const card = document.createElement('div');
+                                card.className = 'feed-card track-card';
+                                card.innerHTML = `
                                         <div class="feed-content">
                                             <span class="feed-badge">${item.category || 'General'}</span>
                                             <h3>${item.title || item.description || 'Completed'}</h3>
@@ -591,22 +581,22 @@
                                             <button class="btn btn-secondary btn-sm" onclick="window.openDonationModal('${item.id}', '${item.type || (item.postedBy ? 'campaigns' : 'requests')}','${(item.title || '').replace(/'/g, "\\'")}')">View Details</button></div>
                                         </div>
                                     `;
-                                    completedListEl.appendChild(card);
-                                });
-                            }
-
-                            onSnapshot(compCampQ, snap => {
-                                completedData.campaigns = [];
-                                snap.forEach(s => completedData.campaigns.push({ id: s.id, ...s.data(), type: 'campaigns' }));
-                                renderCompleted();
-                            });
-
-                            onSnapshot(compReqQ, snap => {
-                                completedData.requests = [];
-                                snap.forEach(s => completedData.requests.push({ id: s.id, ...s.data(), type: 'requests' }));
-                                renderCompleted();
+                                completedListEl.appendChild(card);
                             });
                         }
+
+                        onSnapshot(compCampQ, snap => {
+                            completedData.campaigns = [];
+                            snap.forEach(s => completedData.campaigns.push({ id: s.id, ...s.data(), type: 'campaigns' }));
+                            renderCompleted();
+                        });
+
+                        onSnapshot(compReqQ, snap => {
+                            completedData.requests = [];
+                            snap.forEach(s => completedData.requests.push({ id: s.id, ...s.data(), type: 'requests' }));
+                            renderCompleted();
+                        });
+                    }
                     pointsValue.textContent = points;
                 }
             });
